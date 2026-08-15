@@ -1,8 +1,8 @@
 # new-project-init（项目文档体系初始化 · 提问驱动）
 
-> 🦸 **把「AI 分角色协作开发」工作流固化到项目里的工程化教练** — 新项目开工前、中途加入已有项目、已有文档想完善规范，三种场景全覆盖。从提问驱动落实规范，到模块五件套闭环，每个模板都是 PTB-IMP 项目实战验证的方法论沉淀。
+> 🦸 **把「AI 分角色协作开发」工作流固化到项目里的工程化教练** — 核心场景：**已有项目文档/规范的存量完善**（优化项目文档、补齐 AI 协作工作流闭环）；同时覆盖中途加入补建体系、新项目开工前。从提问驱动落实规范，到模块五件套闭环，每个模板都是 PTB-IMP 项目实战验证的方法论沉淀。
 
-A question-driven project scaffolding skill: turn your planning into project-specific spec files (CLAUDE.md / memory / docs / specs workflow). Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
+A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
 
 [![作者 warm-flame-core](https://img.shields.io/badge/👤_作者-warm--flame--core-blue)](https://github.com/warm-flame-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,7 +14,7 @@ A question-driven project scaffolding skill: turn your planning into project-spe
 
 | 📦 模板 | 🎯 适用场景 | 📄 产出物 | 🧪 验证走查 |
 |:---:|:---:|:---:|:---:|
-| **26 个**（按产出模式分 3 目录） | **全新项目 / 中途加入 / 存量完善** | **CLAUDE.md + memory 三件套 + docs + specs 五件套** | **4 个场景走查**（skill 自身迭代验证） |
+| **26 个**（按产出模式分 3 目录） | **存量完善 / 中途加入 / 全新项目**（以存量完善为核心） | **CLAUDE.md + memory 三件套 + docs + specs 五件套** | **4 个场景走查**（skill 自身迭代验证） |
 
 ---
 
@@ -52,7 +52,7 @@ AI：开始前先问几个问题——
 
 ## ✨ 核心特性
 
-- **三种场景三分支**：全新项目（11 轮问询）/ 中途加入（7 轮，先探索 git/目录/规范）/ 存量完善（4 轮 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查）
+- **三种场景三分支**：存量完善（4 轮 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查，**核心场景**）/ 中途加入（7 轮，先探索 git/目录/规范）/ 全新项目（11 轮问询）
 - **问询轻重分级**：🔴 关键决策一次一个（带推荐+权衡）、🟡 批量带默认（可一键「以上都用默认」快进）
 - **三层推进结构**：设计文档 → 推进清单 → 模块五件套，上层未定稿不进入下层，防「颗粒度跳级返工」
 - **闭环工作流**：Planner → Developer → Reviewer（独立审查）→ Tester → 收尾回看，签署责任矩阵（谁产出谁签署，禁代签）
@@ -71,9 +71,9 @@ AI：开始前先问几个问题——
 
 | 场景 | 触发语 | 走什么流程 | 产出什么 |
 |------|--------|-----------|----------|
-| **新项目开工前** | 「用 new-project-init 初始化项目」 | 第 0 轮摸底 + 11 轮问询（技术栈/团队/记忆/git/编码/文档…） | CLAUDE.md + memory 三件套 + docs + specs 框架 + .gitignore |
+| **已有文档想完善（核心）** | 「用 new-project-init 完善文档」 | 4 轮问询 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查 | 文档规范化 + 工作流补闭环（只记录不重构） |
 | **中途加入已有项目** | 「用 new-project-init 补建文档体系」 | 探索先行（git/目录/规范）+ 7 轮问询 | 补建整套规范（已有代码保留演进） |
-| **已有文档想完善** | 「用 new-project-init 完善文档」 | 4 轮问询 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查 | 文档规范化 + 工作流补闭环（只记录不重构） |
+| **新项目开工前** | 「用 new-project-init 初始化项目」 | 第 0 轮摸底 + 11 轮问询（技术栈/团队/记忆/git/编码/文档…） | CLAUDE.md + memory 三件套 + docs + specs 框架 + .gitignore |
 | **迭代本 skill** | 「用 new-project-init 迭代」 | 讨论驱动 + 四原则 + testing/ 走查 | skill 自身改进（版本演进记 CREATION-LOG） |
 
 ---
@@ -105,9 +105,9 @@ new-project-init/
 
 ## 🚀 快速开始
 
-1. **新项目开工前**：对 agent 说「用 new-project-init 初始化项目」→ 走 11 轮问询 → 产出整套规范文件
+1. **已有文档想完善规范（核心）**：对 agent 说「用 new-project-init 完善文档」→ 走 4 轮问询 + 限制规则 R1-R6 + 冲突消解三阶段
 2. **中途加入已有项目**：对 agent 说「用 new-project-init 补建文档体系」→ 走 7 轮问询（先探索 git/目录/规范）
-3. **已有文档想完善规范**：对 agent 说「用 new-project-init 完善文档」→ 走 4 轮问询 + 限制规则 R1-R6 + 冲突消解三阶段
+3. **新项目开工前**：对 agent 说「用 new-project-init 初始化项目」→ 走 11 轮问询 → 产出整套规范文件
 4. **想迭代本 skill**：对 agent 说「用 new-project-init 迭代」→ 讨论驱动，多轮讨论定案后才改
 
 ---
