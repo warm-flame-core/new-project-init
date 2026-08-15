@@ -11,3 +11,6 @@ Thumbs.db
 # 日志与临时文件
 *.log
 tmp/
+
+# 本地计划/备忘（不入库）
+ROADMAP.md
