@@ -1,0 +1,13 @@
+# Reasonix 本地运行时数据（不入库）
+.reasonix/
+
+# 操作系统 / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# 日志与临时文件
+*.log
+tmp/
