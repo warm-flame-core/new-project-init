@@ -1,10 +1,13 @@
 # new-project-init（项目文档体系初始化 · 提问驱动）
 
-> 🦸 **把「AI 分角色协作开发」工作流固化到项目里的工程化教练** — 核心场景：**已有项目文档/规范的存量完善**（优化项目文档、补齐 AI 协作工作流闭环）；同时覆盖中途加入补建体系、新项目开工前。从提问驱动落实规范，到模块五件套闭环，每个模板都是 PTB-IMP 项目实战验证的方法论沉淀。
+> 🦸 **「项目文档乱成一团？换个 AI 就不知道项目在干嘛？」——这个 skill 帮你把项目的文档、规矩、AI 协作流程一次性立起来。**
 
-A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
+**用大白话说**：你项目里有一堆文档要**建、要整理、要立规矩**，还要让 AI 以后**按规矩帮你干活**——用这个 skill，AI 会先问清楚你的项目情况（技术栈、团队、习惯……问到你烦为止，答不上来它会给默认），再按你的答案生成一套规范文件（CLAUDE.md、AI 记忆库、docs 文档、模块流程等），以后**每个 AI 进场都知道先读什么、怎么干活、怎么留记录**。**重点场景是「存量完善」：项目跑了一半、文档已经有点乱的**——不乱动你的代码，只把文档和流程理顺（只记录不重构）。
+
+A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **DeepSeek Harness (DSH) adapted since v10.7**; also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
 
 [![作者 warm-flame-core](https://img.shields.io/badge/👤_作者-warm--flame--core-blue)](https://github.com/warm-flame-core)
+[![DSH 适配](https://img.shields.io/badge/DeepSeek_Harness-深度适配-4F46E5)](https://github.com/deepseek-ai/deepseek-harness)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
 
@@ -42,11 +45,33 @@ AI：开始前先问几个问题——
 
 ---
 
-## 这是什么？
+## 🖥️ DeepSeek Harness（DSH）适配
 
-一个「**项目文档体系初始化**」skill——通过**提问驱动**把项目规划落实为一组特化规范文件，并固化「AI 分角色协作开发」工作流。
+本 skill **v10.7 起深度适配 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)**（DSH）——**规则/模板/产出物完全跨平台**，Claude Code 等其他工具照常使用，本适配只是「在 DSH 里怎么落地」的指引。
 
-**核心机制：提问驱动落实**。每个规范文件不是照模板硬套，而是先问你对项目的规划（技术栈/团队/记忆/git/编码/文档…），按你的答案特化生成；答不上来的给推荐默认（标注「可改」）。
+### 安装（DSH，任选其一）
+
+| 方式 | 做法 | 说明 |
+|------|------|------|
+| **用户级（推荐）** | 把本仓库放进 `$DSH_HOME/skills/`（Windows 默认 `C:\Users\MSI\.dsh\skills\`；可用 **junction 指向本仓库**，保持单一来源） | 所有 profile / 所有会话可见，无需改配置 |
+| **项目级** | 放进项目 `.dsh/skills/` | 随仓库分发 |
+| **配置指向** | 在 `$DSH_HOME/cordis.patch.yml` 加 `skill-filesystem.customSkillDirs` 指向本仓库 | TUI 等宿主面生效 |
+
+> 完整安装与发现机制（优先级/热重载/验证）见 `references/dsh-adaptation.md`「安装与发现」。
+
+### 调用（DSH）
+
+- 对 DSH 说「**用 new-project-init 完善文档** / **初始化项目** / **补建文档体系**」→ agent 自动用 `skill` 工具加载
+- 或直接输入「**/new-project-init**」（DSH 用户显式调用）
+
+### DSH 落地映射（skill 概念 → DSH 工具）
+
+| skill 概念 | DSH 落地 |
+|---|---|
+| 多 agent 角色（Planner/Developer/Reviewer/Tester） | `subagent` / `subagent_fork`（`agents/<role>.md` 直接作 prompt 模板）；大规模并行用 `workflow` |
+| 问询（🔴 一次一个 / 🟡 批量） | `ask_user_question` |
+| 命令实测（构建/测试，禁止猜） | `pwsh`（Windows）/ `tool-bash` |
+| 审批纪律（commit/push、SQL 先确认） | 与 DSH 审批机制（`approval: ask`）天然一致 |
 
 ---
 
@@ -57,13 +82,27 @@ AI：开始前先问几个问题——
 - **三层推进结构**：设计文档 → 推进清单 → 模块五件套，上层未定稿不进入下层，防「颗粒度跳级返工」
 - **闭环工作流**：Planner → Developer → Reviewer（独立审查）→ Tester → 收尾回看，签署责任矩阵（谁产出谁签署，禁代签）
 - **记忆库纪律**：三件套（project-context / file-index / activity-log）+ logs 细档，触发即写/入场必读/借口自查表
-- **文档维护三要素**：内容实时更新 + 变更记录行 + 署名；**变更记录方向两类分法**（读最近=顶部插最新 / 读演进=底部追加，防时间乱序）
+- **文档维护三要素**：内容实时更新 + 变更记录行 + 署名；**变更记录方向两类分法**（纯 AI 看=头插 / 有人看=尾插，防时间乱序）
 - **唯一出处原则**：同一规范只在一处定义，其余引用不复制——防「多边维护漂移」
 - **信息闭环图**（v10.0）：多边维护信息的唯一出处总图，人+AI 都能看懂
 - **对齐 lead 颗粒度**（v10.0/v10.1）：五件套模板内嵌 lead 样板脱敏示例段 + 必填章节核对表
 - **多技术栈支持**：Java/Web、C++ 后端、嵌入式（STM32/ESP32）三方向示例片段，按问询答案取用
 
 > 完整设计思想（历史 v1-v9 + v10.0 共 14 条）见 `SKILL.md`「设计思想速览（全版本）」节。
+
+---
+
+## 🗺️ 大白话 × 专业词 对照表
+
+| 大白话 | 专业词 | 是什么意思 |
+|--------|--------|-----------|
+| 让 AI 分角色干活 | **多 agent 分工 / agents 角色** | 规划、写代码、审查、测试各由一个 AI 扮演，各管一段、互相验收 |
+| AI 进场的"项目笔记" | **记忆库三件套（memory/）** | 3 个记录项目「状态/文件/进度」的文件，AI 每次开工前必读，防失忆 |
+| 每天的工作流水账 | **logs 细档** | 按角色+日期记录每一步动作、异常、交接 |
+| 每个功能的"开工-验收"五张表 | **specs 五件套** | plan/acceptance/changelog/review/test 五份文档，谁产出谁签字 |
+| 项目的"宪法" | **CLAUDE.md** | 技术栈/命名/接口/编码规则 + 工作流 + 记忆纪律，人和 AI 都看它 |
+| 文档改了要留痕迹 | **变更记录 + 署名** | 每份文档末尾记「什么时候/改了啥/谁改的」，防乱改、可追查 |
+| 文档乱了的"存量完善" | **存量完善（核心场景）** | 项目已有文档但乱/不闭环：以你口述为准、在途模块不动、只理顺不重构代码 |
 
 ---
 
@@ -86,6 +125,7 @@ new-project-init/
 ├── README.md                   # 本文件（对外介绍）
 ├── CREATION-LOG.md             # 完整版本演进历史（v3 → v10.x）
 ├── LICENSE                     # MIT 协议
+├── references/                 # 平台适配参考（dsh-adaptation.md，纯 AI 按需读取）
 ├── templates/                  # 26 个模板，按产出模式分 3 目录
 │   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore 等 17 个）
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
@@ -110,9 +150,14 @@ new-project-init/
 3. **新项目开工前**：对 agent 说「用 new-project-init 初始化项目」→ 走 11 轮问询 → 产出整套规范文件
 4. **想迭代本 skill**：对 agent 说「用 new-project-init 迭代」→ 讨论驱动，多轮讨论定案后才改
 
+> **DSH 用户**：以上触发语照说即可；或在输入框直接输入 `/new-project-init`。技能安装见上文「DSH 适配」。
+
 ---
 
 ## ❓ FAQ
+
+**Q：这个 skill 是干什么的？说人话。**
+A：帮你把项目的「文档 + AI 协作规矩」立起来。AI 先问你项目情况，再按你的答案生成一套规范文件；以后任何 AI 进场，都知道先读什么、怎么干活、怎么留记录。**最擅长救「文档已经有点乱」的项目**。
 
 **Q：这个 skill 和 superpowers 什么关系？**
 A：**设计方法论受启发，内容是原创**。触发条件式描述、完成前验证、集成选项交给用户等思想借鉴自 superpowers / superpowers-zh；但模板体系（26 个）、问询流程（三场景）、记忆库纪律、模块五件套闭环均为本 skill 在 PTB-IMP 项目实战沉淀的原创内容。
@@ -152,7 +197,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 - **项目团队（PTB-IMP 实战贡献）**：
   - 组长 **white-bai-k** — [gitee.com/white-bai-k](https://gitee.com/white-bai-k)（lead 样板 module-004 五件套产出者）
   - 组员 **ssss_777** — [gitee.com/ssss_777](https://gitee.com/ssss_777)（white 分支模块开发：module-006~013 等）
-  - 组员 **（gitee 待补充）** — 暂无 gitee 链接，留位待补充
+  - 组员 **wshsds** — [gitee.com/wshsds](https://gitee.com/wshsds)（PTB-IMP 项目组员）
 - **作者**：warm-flame-core
 
 ---
@@ -162,7 +207,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 <img src="https://github.com/warm-flame-core.png" width="48" height="48" alt="warm-flame-core" align="left" style="border-radius:8px;margin-right:12px">
 
 - 👤 **warm-flame-core** — [github.com/warm-flame-core](https://github.com/warm-flame-core) · [gitee.com/warm-flame-core](https://gitee.com/warm-flame-core)
-- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享
+- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享，v10.7 起深度适配 DeepSeek Harness（DSH）
 
 <br clear="both">
 
@@ -171,3 +216,12 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 ## 📄 许可证
 
 [MIT](LICENSE) — 自由使用、修改、分享（保留版权声明即可）。
+
+---
+
+## 📝 变更记录
+
+| 日期 | 变更内容 | 署名 |
+|------|----------|------|
+| 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |
+| 2026-08-16 | 新增「DSH 适配」节（v10.7，安装/调用/落地映射三要点）；README 补变更记录表（原缺，按文档维护规则第 1 条补齐） | DSH 适配（agent） |
