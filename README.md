@@ -4,10 +4,11 @@
 
 **用大白话说**：你项目里有一堆文档要**建、要整理、要立规矩**，还要让 AI 以后**按规矩帮你干活**——用这个 skill，AI 会先问清楚你的项目情况（技术栈、团队、习惯……问到你烦为止，答不上来它会给默认），再按你的答案生成一套规范文件（CLAUDE.md、AI 记忆库、docs 文档、模块流程等），以后**每个 AI 进场都知道先读什么、怎么干活、怎么留记录**。**重点场景是「存量完善」：项目跑了一半、文档已经有点乱的**——不乱动你的代码，只把文档和流程理顺（只记录不重构）。
 
-A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **DeepSeek Harness (DSH) adapted since v10.7**; also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
+A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **Adapted for DeepSeek Harness (DSH, v10.7) and Reasonix (v10.9)**; also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
 
 [![作者 warm-flame-core](https://img.shields.io/badge/👤_作者-warm--flame--core-blue)](https://github.com/warm-flame-core)
 [![DSH 适配](https://img.shields.io/badge/DeepSeek_Harness-深度适配-4F46E5)](https://github.com/deepseek-ai/deepseek-harness)
+[![Reasonix 适配](https://img.shields.io/badge/Reasonix-深度适配-1E8E3E)](https://reasonix.io/skills/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
 
@@ -85,6 +86,7 @@ dsh plugin --profile web add github:warm-flame-core/new-project-init
 | 平台 | 使用方式 |
 |------|----------|
 | **Claude Code** | 把本仓库放进 Claude Code 技能目录：`~/.claude/skills/new-project-init/`（用户级）或项目 `.claude/skills/`（项目级），然后说「用 new-project-init …」 |
+| **Reasonix** | 见下文「Reasonix 适配」：`reasonix.toml` 的 `[skills] paths` 指向本仓库，或 junction 进 `~/.reasonix/skills/` |
 | **Cursor / 其他支持 skills 的 agent** | 同理：把含 `SKILL.md` 的目录放进对应技能的加载目录即可 |
 | **任何平台的通用用法** | 直接对 agent 说「用 new-project-init 完善文档 / 初始化项目 / 补建文档体系 / 迭代」——技能正文会指导 agent 按流程执行，无需平台专属配置 |
 
@@ -96,6 +98,51 @@ dsh plugin --profile web add github:warm-flame-core/new-project-init
 | 问询（🔴 一次一个 / 🟡 批量） | `ask_user_question` |
 | 命令实测（构建/测试，禁止猜） | `pwsh`（Windows）/ `tool-bash` |
 | 审批纪律（commit/push、SQL 先确认） | 与 DSH 审批机制（`approval: ask`）天然一致 |
+
+---
+
+## 🧩 Reasonix 适配
+
+本 skill **v10.9 起深度适配 [Reasonix](https://github.com/esengine/DeepSeek-Reasonix)**（Reasonix coding harness）——**规则/模板/产出物完全跨平台**，与 DSH/Claude Code 适配互不冲突，本适配只是「在 Reasonix 里怎么落地」的指引。完整映射见 `references/reasonix-adaptation.md`。
+
+### 安装（Reasonix）
+
+**方式一：配置指向（推荐，保持单一来源）**
+
+在 Reasonix 全局配置里加（本机为 `%APPDATA%\reasonix\config.toml`，用 `reasonix setup` 生成）：
+
+```toml
+[skills]
+paths = ["F:/Software/deepseek-harness/Skill/new-project-init"]
+```
+
+**方式二：junction 进全局技能根（Windows 推荐，零 C 盘占用）**
+
+```powershell
+mkdir C:\Users\MSI\.reasonix\skills -Force
+New-Item -ItemType Junction -Path C:\Users\MSI\.reasonix\skills\new-project-init -Target F:\Software\deepseek-harness\Skill\new-project-init
+```
+
+**方式三：放进项目**：复制/链接到 `<项目>/.reasonix/skills/`（Reasonix 也扫描 `.claude/skills/`、`.agents/skills/`）。
+
+### 调用（Reasonix）
+
+- 对 Reasonix 说「**用 new-project-init 完善文档** / **初始化项目** / **补建文档体系**」
+- 常驻纪律：把 CLAUDE.md 的核心纪律摘要进项目 `AGENTS.md`（`reasonix init` 会说明），Reasonix 每次会话都会读到
+
+### Reasonix 落地映射（skill 概念 → Reasonix 工具）
+
+| skill 概念 | Reasonix 落地 |
+|---|---|
+| 多 agent 角色（Planner/Developer/Reviewer/Tester） | 原生 `task` / `review` / `wait` / `explore`；`reasonix subagent` 管理子代理 profile（`agents/<role>.md` 作模板） |
+| 问询（🔴 一次一个 / 🟡 批量） | 会话内提问；🔴 关键题单独问 |
+| 命令实测（构建/测试，禁止猜） | bash/shell 执行；`reasonix run` |
+| 记忆纪律 | memory/ 三件套项目级落地不变；Reasonix 的 `AGENTS.md` 是补充 |
+| 审批纪律（commit/push、SQL 先确认） | 与 Reasonix 权限/确认机制对齐 |
+
+### 社区发布（reasonix.io/skills）
+
+本 skill 已在 npm（`new-project-init`）与 GitHub 发布，Reasonix 社区版在 **https://reasonix.io/skills/** 的 **Publish** 表单提交（填 GitHub 仓库 URL 或 SKILL.md 直链）即可。
 
 ---
 
@@ -152,7 +199,7 @@ new-project-init/
 ├── README.md                   # 本文件（对外介绍）
 ├── CREATION-LOG.md             # 完整版本演进历史（v3 → v10.x）
 ├── LICENSE                     # MIT 协议
-├── references/                 # 平台适配参考（dsh-adaptation.md，纯 AI 按需读取）
+├── references/                 # 平台适配参考（dsh-adaptation.md + reasonix-adaptation.md，纯 AI 按需读取）
 ├── templates/                  # 26 个模板，按产出模式分 3 目录
 │   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore 等 17 个）
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
@@ -234,7 +281,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 <img src="https://github.com/warm-flame-core.png" width="48" height="48" alt="warm-flame-core" align="left" style="border-radius:8px;margin-right:12px">
 
 - 👤 **warm-flame-core** — [github.com/warm-flame-core](https://github.com/warm-flame-core) · [gitee.com/warm-flame-core](https://gitee.com/warm-flame-core)
-- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享，v10.7 起深度适配 DeepSeek Harness（DSH）
+- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享，v10.7 起深度适配 DeepSeek Harness（DSH），v10.9 起深度适配 Reasonix
 
 <br clear="both">
 
@@ -250,6 +297,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-08-16 | 新增「Reasonix 适配」节（v10.9，安装三方式/调用/落地映射/社区发布）；跨平台表补 Reasonix 行；英文摘要与作者栏补 v10.9；增加 Reasonix 徽章；目录树 references/ 行补 reasonix-adaptation.md | DSH 适配（agent） |
 | 2026-08-16 | 打包为 DSH 插件（v10.8）：新增 package.json（`dsh.bundle`）+ lib/index.js（skill provider）+ cordis.patch.yml；DSH 安装节改为「插件安装（npm/GitHub/本地文件夹）+ 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表；目录树补插件文件行 | DSH 适配（agent） |
 | 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |
 | 2026-08-16 | 新增「DSH 适配」节（v10.7，安装/调用/落地映射三要点）；README 补变更记录表（原缺，按文档维护规则第 1 条补齐） | DSH 适配（agent） |

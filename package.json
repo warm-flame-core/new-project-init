@@ -1,7 +1,7 @@
 {
   "name": "new-project-init",
-  "version": "1.0.0",
-  "description": "项目文档体系初始化 skill（DeepSeek Harness 插件包）：提问驱动落实文档规范 + 固化 AI 协作工作流，以「存量完善」为核心场景，跨平台可用（DSH / Claude Code）。",
+  "version": "1.0.1",
+  "description": "项目文档体系初始化 skill（DeepSeek Harness 插件包 / Reasonix 技能）：提问驱动落实文档规范 + 固化 AI 协作工作流，以「存量完善」为核心场景，跨平台可用（DSH / Reasonix / Claude Code）。",
   "private": false,
   "type": "module",
   "main": "lib/index.js",
@@ -24,6 +24,7 @@
   "keywords": [
     "dsh",
     "deepseek-harness",
+    "reasonix",
     "plugin",
     "skills",
     "new-project-init",
