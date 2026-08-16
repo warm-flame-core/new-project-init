@@ -92,7 +92,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 - **其他平台（Claude Code 等）**：照常执行原流程，本适配说明不改变任何规则。
 - **调用方式（DSH）**：用户说「用 new-project-init …」→ agent 用 `skill` 工具加载本技能；或直接输入 `/new-project-init`（DSH 用户显式调用）。
 - **迭代（DSH）**：对 DSH 说「用 new-project-init 迭代」→ 同样触发「skill 迭代大前提」的讨论驱动纪律。
-- **安装（DSH）**：见 `references/dsh-adaptation.md` 末尾「安装与发现」——放 `$DSH_HOME/skills/`（用户级，推荐）或项目 `.dsh/skills/`，或用 `$DSH_HOME/cordis.patch.yml` 的 `skill-filesystem.customSkillDirs` 指向本仓库。
+- **安装（DSH）**：见 `references/dsh-adaptation.md`「安装与发现」——**插件安装**（v10.8）：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹；**本地文件安装**：放 `$DSH_HOME/skills/`（用户级，推荐）或项目 `.dsh/skills/`，或用 `$DSH_HOME/cordis.patch.yml` 的 `skill-filesystem.customSkillDirs` 指向本仓库。
 
 ## 目录用途认知（问询和产出时按此定位）
 
@@ -633,3 +633,4 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v10.5 | 2026-08-15 | ①文档维护规则第 9 条重写：v10.3「读最近/读演进」二分法 →「纯 AI=头插（记录区放文档头部+新行插顶）/ 有人看=尾插（记录区放文档尾部+新行追加底）」——用户 2026-08-15 定案（纯 AI 省 token / 人看美观）②第 9 条附 26 模板+主文件分类表逐一指定（头插 6：02/03/04/05/24/25；尾插其余 20 + SKILL.md/README/CREATION-LOG）③补「署名/签字不要求时间排序」（只看经手/过目，与变更记录时间排序解耦）+「模板迭代记录=产出文档变更记录写法的示例」④同步迭代大前提第 3 条 + 冲突消解阶段 C 第 11 项旧术语 | Reasonix（skill 迭代） |
 | v10.6 | 2026-08-15 | ①定位重述：以**存量完善**为核心场景（优化已有项目文档/规范、固化 AI 协作工作流），新建脚手架为补充——frontmatter description/「定位」/「这是什么」/适合谁/设计思想三场景顺序全部重排为「存量完善→中途→全新」②README 同步重述定位（中文定位句+英文摘要）+ 三场景表/快速开始/核心特性顺序调整 ③补录 CREATION-LOG v10.5 行（漏同步修复）——发布至 GitHub 前用户反馈「市面上完善多 agent 的 skill 已很多，应主打存量完善差异化」 | warm-flame-core（skill 迭代） |
 | v10.7 | 2026-08-16 | ①**DSH 深度适配（跨平台通用）**：新增「平台适配」节 + `references/dsh-adaptation.md`（DSH 能力映射：多 agent 角色→`subagent`/`subagent_fork`/`workflow`、问询→`ask_user_question`、命令实测→`pwsh`、审批纪律与 DSH approval 对齐、产出物 CLAUDE.md 保持原名跨平台、入场核对注意 DSH 不自动读 CLAUDE.md）②frontmatter 补 `whenToUse`（DSH 支持的调用提示字段，其他平台忽略）③README 补 DSH 使用说明 + 变更记录表（README 原缺变更记录表，一并补齐）④安装指引：`$DSH_HOME/cordis.patch.yml` 配 `skill-filesystem.customSkillDirs` 指向本仓库（宿主层，TUI 等 profile）+ `$DSH_HOME/skills/` junction 指向仓库（preset 层，GUI 生效）——用户要求「深度适配 DSH 同时保证其他平台可用」 | DSH 适配（agent） |
+| v10.8 | 2026-08-16 | ①**打包为 DSH 插件（npm 包）**：新增 `package.json`（`dsh.bundle` → `cordis.patch.yml`）+ `lib/index.js`（skill provider：把包根目录 `SKILL.md` 注册进 `ctx.skills` host 层，rank 550，resourceBase=包根，`templates/` 等相对引用正常解析）+ `cordis.patch.yml`（插入 `new-project-init` 行）；安装三方式：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹 ②README 安装节改「插件安装 + 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表（Claude Code 技能目录等）③`references/dsh-adaptation.md` 安装与发现补插件安装段 —— 用户要求「像其他 DSH 仓库一样提供 npm/GitHub 安装，同时给出其他平台可用方式」 | DSH 适配（agent） |

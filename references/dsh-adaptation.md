@@ -1,6 +1,8 @@
 # new-project-init · DSH（DeepSeek Harness）适配说明
 
-> 📍 变更记录（纯 AI 看，头插）：`2026-08-16 | 新增：DSH 适配说明（v10.7） | DSH 适配（agent）`
+> 📍 变更记录（纯 AI 看，头插）：
+> `2026-08-16 | 新增：插件安装方式（npm/GitHub/本地文件夹，v10.8 打包为 DSH 插件包） | DSH 适配（agent）`
+> `2026-08-16 | 新增：DSH 适配说明（v10.7） | DSH 适配（agent）`
 
 > 本文件是 SKILL.md「平台适配」节的展开。**只提供「在 DSH 中怎么落地」的指引，不改变 skill 的任何规则/模板/产出物**；在其他平台（Claude Code 等）运行时忽略本文件，照常执行 SKILL.md 原流程。
 
@@ -47,6 +49,18 @@
 ## 5. 安装与发现（DSH）
 
 skill 目录 = `<root>/new-project-init/`（含 SKILL.md + templates/ + testing/ + references/）。DSH 的 filesystem skill 提供方按优先级扫描这些根（每级一个 `<name>/SKILL.md` 或 `<name>.md`）：
+
+**插件安装（v10.8 起，本仓库同时是 DSH 插件包 `new-project-init`，`dsh.bundle` 自动注册技能 provider）**：
+
+```sh
+dsh plugin --profile web add new-project-init                    # npm 包（发布后）
+dsh plugin --profile web add github:warm-flame-core/new-project-init   # 或 GitHub
+dsh plugin --profile web add <仓库路径>                            # 或本地文件夹
+```
+
+插件安装走 host 层 provider（rank 550），装完重启 profile 即可在技能目录出现，无需任何配置；与下方本地文件安装可并存（同名时 rank 更低者胜，本地 400/500 优先于插件 550）。
+
+**本地文件安装（filesystem provider 的发现根）**：
 
 | 优先级 | 根 | 说明 |
 |---|---|---|

@@ -14,3 +14,7 @@ tmp/
 
 # 本地计划/备忘（不入库）
 ROADMAP.md
+
+# npm 包依赖（v10.8 起仓库为 DSH 插件包）
+node_modules/
+npm-debug.log*

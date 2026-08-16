@@ -1,0 +1,38 @@
+{
+  "name": "new-project-init",
+  "version": "1.0.0",
+  "description": "项目文档体系初始化 skill（DeepSeek Harness 插件包）：提问驱动落实文档规范 + 固化 AI 协作工作流，以「存量完善」为核心场景，跨平台可用（DSH / Claude Code）。",
+  "private": false,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "SKILL.md",
+    "templates",
+    "testing",
+    "references",
+    "README.md",
+    "CREATION-LOG.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "skills",
+    "new-project-init",
+    "documentation",
+    "claude-code"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

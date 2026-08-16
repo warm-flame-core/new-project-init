@@ -49,7 +49,21 @@ AI：开始前先问几个问题——
 
 本 skill **v10.7 起深度适配 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)**（DSH）——**规则/模板/产出物完全跨平台**，Claude Code 等其他工具照常使用，本适配只是「在 DSH 里怎么落地」的指引。
 
-### 安装（DSH，任选其一）
+### 安装（DSH）
+
+**方式一：DSH 插件安装（npm 包 / GitHub）—— 本仓库同时是一个 DSH 插件包（`dsh.bundle`），安装即注册技能**
+
+```sh
+# npm 包（推荐，发布后）
+dsh plugin --profile web add new-project-init
+
+# 或从 GitHub 安装
+dsh plugin --profile web add github:warm-flame-core/new-project-init
+```
+
+> 装完重启 profile（`dsh web`），技能即出现在会话技能目录。其他 profile（desktop / headless）把 `--profile` 换成对应名字；也可以从本地文件夹安装（`dsh plugin --profile web add <仓库路径>`）。
+
+**方式二：本地文件安装（无需插件系统，所有 profile 通用）**
 
 | 方式 | 做法 | 说明 |
 |------|------|------|
@@ -63,6 +77,16 @@ AI：开始前先问几个问题——
 
 - 对 DSH 说「**用 new-project-init 完善文档** / **初始化项目** / **补建文档体系**」→ agent 自动用 `skill` 工具加载
 - 或直接输入「**/new-project-init**」（DSH 用户显式调用）
+
+### 其他平台的使用方式（跨平台）
+
+本 skill 的 `SKILL.md` + frontmatter 是**通用技能格式**，不绑定任何平台：
+
+| 平台 | 使用方式 |
+|------|----------|
+| **Claude Code** | 把本仓库放进 Claude Code 技能目录：`~/.claude/skills/new-project-init/`（用户级）或项目 `.claude/skills/`（项目级），然后说「用 new-project-init …」 |
+| **Cursor / 其他支持 skills 的 agent** | 同理：把含 `SKILL.md` 的目录放进对应技能的加载目录即可 |
+| **任何平台的通用用法** | 直接对 agent 说「用 new-project-init 完善文档 / 初始化项目 / 补建文档体系 / 迭代」——技能正文会指导 agent 按流程执行，无需平台专属配置 |
 
 ### DSH 落地映射（skill 概念 → DSH 工具）
 
@@ -121,6 +145,9 @@ AI：开始前先问几个问题——
 
 ```
 new-project-init/
+├── package.json                # DSH 插件包清单（dsh.bundle → cordis.patch.yml）
+├── lib/index.js                # DSH 插件：skill provider（把根目录 SKILL.md 注册进技能注册表）
+├── cordis.patch.yml            # DSH bundle patch（插入 new-project-init 插件行）
 ├── SKILL.md                    # 主文件：问询流程/执行流程/强制规则/附录（26 模板索引）
 ├── README.md                   # 本文件（对外介绍）
 ├── CREATION-LOG.md             # 完整版本演进历史（v3 → v10.x）
@@ -223,5 +250,6 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-08-16 | 打包为 DSH 插件（v10.8）：新增 package.json（`dsh.bundle`）+ lib/index.js（skill provider）+ cordis.patch.yml；DSH 安装节改为「插件安装（npm/GitHub/本地文件夹）+ 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表；目录树补插件文件行 | DSH 适配（agent） |
 | 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |
 | 2026-08-16 | 新增「DSH 适配」节（v10.7，安装/调用/落地映射三要点）；README 补变更记录表（原缺，按文档维护规则第 1 条补齐） | DSH 适配（agent） |
