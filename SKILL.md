@@ -133,7 +133,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 
 ## 文档维护规则（强制，配合模板头部维护声明）
 
-1. **变更记录必填**：所有一次性/持续文档（README、CLAUDE.md、docs/ 全部、specs 五件套、agents 角色）末尾带「变更记录」表；**修改文档后必须追加一行**（记忆库 memory/ 除外——它是追加式）。
+1. **变更记录必填**：所有一次性/持续文档（README、CLAUDE.md、docs/ 全部、specs 五件套、agents 角色）末尾带「变更记录」表；**修改文档后必须追加一行**（记忆库 memory/ 除外——它是追加式）。**新建文档同样必读模板保留强制结构**（见「产出物新建门禁总览」）。
 2. **格式**：`YYYY-MM-DD HH:mm | 变更内容 | 署名`（精确到分钟；署名按 B13/B14 三元组 `<人>-<角色>-<实例>`）。
 3. **维护声明在头部**：模板头部有一行「本文档修改后必须在末尾变更记录追加一行」——agent 打开文档第一眼看到（解决「改了中间内容翻不到末尾」问题）。
 4. **触发场景（必须回看/更新）**：①模块开发完成（**同步所有进度状态类文档**：任务清单 checkbox / 模块状态表 / 文档导航索引 / 测试手册节 / 各变更记录——清单与工作线定位规则见模板 24 阶段 4）②需求变更 ③计划变更 ④人工测试提出改进 ⑤修改任何 docs/specs/CLAUDE.md 后 ⑥模块收尾（T6 工具与方法提炼检查）。
@@ -190,6 +190,50 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 >
 动作标签：完整表（20 个 + 语义）**唯一出处见 CLAUDE.md C 区「记忆库纪律」**（PLAN/CLARIFY/CODE/FIX/BUILD/REVIEW/ADR/TEST/REGRESSION/SMOKE/BLOCKED/UNBLOCKED/HANDOFF/CONTEXT/CORRECT/ESCALATE/GIT/DB/CLEANUP/DOCS），本文件不重复定义。
 分工：agent-activity-log=每模块每阶段 1 行看进度；logs=每角色每日每动作详细查证。
+
+---
+
+## 产出物新建门禁总览（v10.11，全量体检 ISSUE-002）
+
+> **任何产出物新建/更新都必须先读对应模板，收尾对照模板逐节比对**——缺任一必填结构/头部声明/变更记录 = 未按规范（见下「通用借口令禁」）。本表一次性覆盖全部产出物，**存量完善补建文档时尤其必须逐项核对**（把模板挪过去就不管 = 违规）。
+
+### 通用规则（所有产出物适用）
+
+1. **新建前必读模板**：产出任何文件前，先打开附录 C 对应的模板文件（`templates/<模式>/<编号>-*.md`），理解结构。
+2. **按答案特化**：先问对应引导题（见附录 B），按项目答案填，**不抄模板示例原文**（唯一出处 + 禁硬编码 PTB-IMP）。
+3. **保留强制结构**：模板的必填章节/表/头部声明/维护声明**一个不能少**；可选章节按 on/off 跳过。
+4. **收尾逐节核对**：产出完对照模板「结构一览」逐节比对——漏一项即返工补齐。
+5. **变更记录**：按「文档维护规则」在产出物末尾/头部（按 9 条受众分类）补变更记录行。
+
+### 产出物 → 模板 → 必核结构清单
+
+| 产出物 | 模板 | 新建强制核对（复制模板 → 特化 → 收尾比对） |
+|--------|------|--------------------------------------------|
+| CLAUDE.md | 一次性/01 | 头部产出红线 7 条 + A/B/C/D 四区全、on/off 标注、末尾变更记录 |
+| memory/project-context.md | 一次性/02 | 章节齐全（含更新日志）、变更记录**头插**（纯 AI） |
+| memory/file-index.md | 一次性/03 | 索引分区全、登记新文件、变更记录**头插** |
+| memory/agent-activity-log.md | 一次性/04 | 活动单表 + 动作标签（唯一出处见 CLAUDE.md C 区）、变更记录**头插** |
+| memory/logs/<角色>/<日期>.md | 多次-单文件/05 | **四表 + 头部 Agent 声明必填**（ISSUE-001 门禁，见「logs 细档记录形式」） |
+| agents/<角色>.md | 多次-含文件夹/06 | 8 节完整（定位/职责/输入输出/约束/上报/协作/流程/自检清单） |
+| .gitignore | 一次性/07 | 编译产物/依赖/密钥/工具/临时/内部文档 + 锁文件不忽略 |
+| README.md | 一次性/08 | 简介/技术栈/快速开始/目录/账号 + 变更记录 |
+| docs/功能说明.md 等 docs 各文档 | 一次性/09-16 | 各自章节全 + 末尾变更记录（人+AI 双受众，尾插） |
+| specs/module-XXX/plan.md 等五件套 | 多次-含文件夹/17-21 | 必填章节核对表（plan 结构 A/B 二选一）+ 签署 + 变更记录尾插 |
+| file-templates/README.md | 一次性/22 | 命名/通用版式/模板明细/F4 来源 + 变更记录 |
+| tools/README.md | 一次性/23 | 判定标准/工具列表/依赖方向/复用记录 + 变更记录 |
+| memory/project/module-lifecycle-checklist.md | 多次-含文件夹/24 | 阶段 0-6 流程树 + 签署矩阵（唯一出处 CLAUDE.md C 区）+ 收尾核对 |
+| memory/handoff/<模块>-交接文档.md | 多次-单文件/25 | §0 一句话状态 + §1 文档签署状态清单（必填表）等 5 节 + 输出物收尾 |
+| docs/DOCUMENT-INDEX.md | 一次性/26 | 机器维护声明 + 索引全部规范/模板/文档；新增文档后立即追加条目 |
+
+### 通用借口令禁（产出物门禁，violating the letter=violating the spirit）
+
+| 借口（听起来合理，实为违规） | 现实 |
+|---|---|
+| "这次文档简单，不套模板直接写" | **任何产出物必须先读模板**，结构缺一即违规 |
+| "skill 结束前已经生成过示例了，不用再核" | 每次新建/更新都要对照模板逐节核对（存量完善尤甚） |
+| "这个章节项目里用不上，跳了" | on/off：按答案标注适用条件可跳，但**必须显式说明**，不默默删 |
+| "把模板挪到真实位置就算建好了" | 挪过去只是开始，**必须特化内容 + 收尾逐节比对** |
+| "变更记录下次补" | 变更记录是历史证据，产出即补（见文档维护规则） |
 
 ---
 
@@ -500,7 +544,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 
 ### 探索与产出
 1. **探索**：读 manifest + 目录 + 入口；**实测构建/测试/运行命令**（必须真实跑一遍，不许猜）；按 U10 做环境预检。
-2. **逐文档产出**：按附录 C 的模板文件，**先问对应引导题 → 按答案写 → 用户确认 → 下一份**。顺序：README → CLAUDE.md → memory 三件套（+logs + 模板 24 产出物 module-lifecycle-checklist.md）→ agents/（多 agent + 用户要详尽）→ .gitignore → docs/ → specs/ 示例 → file-templates（如有）。
+2. **逐文档产出**：按附录 C 的模板文件，**先问对应引导题 → 按答案写 → 用户确认 → 下一份**。顺序：README → CLAUDE.md → memory 三件套（+logs + 模板 24 产出物 module-lifecycle-checklist.md）→ agents/（多 agent + 用户要详尽）→ .gitignore → docs/ → specs/ 示例 → file-templates（如有）。**每份产出收尾对照「产出物新建门禁总览」逐节核对**（缺失结构即返工）。
 3. **三类产出模式**（模板双部分化的落地，v10.0 按产出模式分目录 `templates/一次性/`、`templates/多次-单文件/`、`templates/多次-含文件夹/`）：
    - **多次创建且含文件夹**（specs 五件套 17-21、agents 06、checklist 24）：skill 结束时在真实位置生成**特化模板文件夹**（如 `specs/module-XXX-示例/` 内含特化五件套骨架，`-示例` 后缀区分），后续 agent 新建模块 = **复制该文件夹改名**（如 `specs/module-005-xxx/`）再逐文件填写；特化模板文件夹登记进 file-index。
    - **多次创建但不含文件夹**（logs 每日 05、handoff 交接 25）：skill 结束时放**单个特化模板文件**（如 `memory/logs/planner/YYYY-MM-DD.md`、`memory/handoff/交接文档-示例.md`），后续 agent **复制该文件**新建；注意 logs 按「跨天拆分强制规则」每日新建（模板 05）。
@@ -652,3 +696,4 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v10.8 | 2026-08-16 | ①**打包为 DSH 插件（npm 包）**：新增 `package.json`（`dsh.bundle` → `cordis.patch.yml`）+ `lib/index.js`（skill provider：把包根目录 `SKILL.md` 注册进 `ctx.skills` host 层，rank 550，resourceBase=包根，`templates/` 等相对引用正常解析）+ `cordis.patch.yml`（插入 `new-project-init` 行）；安装三方式：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹 ②README 安装节改「插件安装 + 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表（Claude Code 技能目录等）③`references/dsh-adaptation.md` 安装与发现补插件安装段 —— 用户要求「像其他 DSH 仓库一样提供 npm/GitHub 安装，同时给出其他平台可用方式」 | DSH 适配（agent） |
 | v10.9 | 2026-08-16 | ①**Reasonix 深度适配（跨平台通用）**：新增 `references/reasonix-adaptation.md`（Reasonix 能力映射全文：多 agent 角色→原生 `task`/`review`/`wait`/`explore` 工具、子代理→`reasonix subagent`、常驻纪律→项目 `AGENTS.md`、安装→`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`（本机 `%APPDATA%\reasonix\config.toml`）、社区发布→reasonix.io/skills 网页表单填仓库 URL）②平台适配节补 Reasonix bullet + 标题补 v10.9 ③README 新增「Reasonix 适配」节 + 跨平台表补 Reasonix 行 + Reasonix 徽章 ④CREATION-LOG 同步 —— 用户要求「适配 Reasonix 并在其社区发布，介绍文档同步更新」 | DSH 适配（agent） |
 | v10.10 | 2026-08-17 | ①**仓库布局重组（跨平台规整）**：references/ 按平台拆分 → `platforms/<平台>/`（reasonix/adaptation.md、dsh/adaptation.md、dsh/cordis.patch.yml）；CREATION-LOG.md → docs/；新增 AGENTS.md（开发者入口）②**私密文件加密**：ISSUES.md/ROADMAP.md/DEVELOPER.md → `_private/`（明文 .gitignore 排除、*.enc AES-GCM 密文入库，scripts/secret.ps1）③**npm 停止维护**：发布改为 GitHub 唯一渠道，README npm 安装删除线标注 ④单仓库化（dev 私有仓退役为备份）⑤**logs 四表必填门禁（ISSUE-001）**：记忆库写入纪律第 4 条 + logs 细档记录形式补「新建强制步骤（读模板→复制结构→逐表追加→收尾比对）+ 借口令禁表」，模板 05 同步补新建强制步骤——修 agents 写日志未按模板四表/缺头部声明——用户要求「平台适配按平台名分目录规整、私密文件不公开、双仓库太麻烦」+ ISSUE-001 | warm-flame-core（skill 迭代） |
+| v10.11 | 2026-08-17 | **全量体检 + 产出物门禁总览（superpowers-writing-skills 方法论, ISSUE-002）**：①SKILL.md 新增「产出物新建门禁总览」节——通用规则 5 条 + 产出物→模板→必核结构全表（**13 类产出物**：CLAUDE.md/memory 三件套/logs/agents/gitignore/README/docs/specs 五件套/file-templates/tools/checklist/handoff/DOCUMENT-INDEX）+ 通用借口令禁表（5 行，含「把模板挪过去就算建好」「文档简单不套模板」两高发借口）②「探索与产出」第 2 条、「文档维护规则」第 1 条接引门禁核对 ③testing/模板走查加 3b、存量走查加第 6 节「产出物新建门禁核对」（存量完善为重点场景）④RED-GREEN 实测：独立子代理复测确认强制指令可执行、13 类产出物全覆盖、行号一致——修 ISSUE-002（除 logs 外全部产出物缺新建门禁，存量完善补建文档最易暴露）——用 superpowers-writing-skills 对 skill 全量体检 | warm-flame-core（skill 迭代） |
