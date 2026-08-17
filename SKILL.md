@@ -114,7 +114,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 1. **触发条件（满足任一必须写入）**：①开发（新增/修改/删除任何项目文件）②测试（无论成败，记结果与数字）③审查（记结论与遗留项）④git 实质操作：`commit/push/merge/rebase/reset`（记提交号）；**切分支轻量记 activity-log 一行**；`fetch/pull/stash` 不记；⑤纯读不记。
 2. **回答末尾自检（强制三步）**：①动了哪些文件 ②记忆库三件套+logs 是否覆盖 ③缺则补写后再结束。
 3. **新会话入场（强制核对）**：读 project-context → file-index → agent-activity-log → CLAUDE.md；然后跑 `git status` + `git diff --stat` 与 file-index 核对，未知变动先弄清再动手，不臆测。
-4. **logs 细节**：动作即写 + 末尾兜底；跨天按当天拆分；写错用 `[CORRECT]` 追加更正不删改。
+4. **logs 细节**：**新建 `memory/logs/<角色>/<当天日期>.md` 前必须复制/读取项目内模板**（`memory/logs/<角色>/YYYY-MM-DD.md` 模板实例 + skill 模板 05），**四表 + 头部 Agent 声明必填**（活动记录/异常事件/交接记录/今日统计 + `> Agent: <角色> | 日期: <日期>`）；无异常/无交接留占位行不省略结构，叙述节只能作可选补充；动作为逐表追加，收尾填「今日统计」；跨天按当天拆分；写错用 `[CORRECT]` 追加更正不删改。
 5. memory/ 是否入 git：**初始化时问询用户**。
 6. 内容边界：不记密码明文/内网地址/凭据；测试账号可记、密码只记规则。
 7. **临时文件纪律**：临时脚本/文件放 `.tmp-xxx/` 目录（不入 git），命名带用途；**用完即删**，用法记入 logs 避免重造（配合「模块收尾工具提炼检查」T 组规则）。
@@ -173,6 +173,21 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件，目录内放模板
 ```
 单文件四表：**活动记录**（时间/模块/动作/产出文件/状态/耗时/备注）+ **异常事件**（含根因）+ **交接记录** + **今日统计**。
+
+**新建强制步骤（四表必填门禁）**：每次写 logs 前：
+1. **读模板**：打开项目内 `memory/logs/<角色>/YYYY-MM-DD.md` 模板实例或 skill 内 `templates/多次-单文件/05-logs-day.md`；
+2. **复制结构**：完整保留四表 + 头部 `> Agent: <角色> | 日期: <日期>` 声明行；
+3. **逐表追加**：动作用带时间戳的行写进「活动记录」，异常写「异常事件」，换人/交接同步写「交接记录」；
+4. **收尾核对**：下班/收尾补「今日统计」，并与模板结构比对——**缺任一表 / 缺头部声明 = 未按规范**（见借口自查表）。
+
+> 🛑 **借口令禁**（logs 四表，violating the letter=violating the spirit）：
+> | 借口（听起来合理，实为违规） | 现实 |
+> |---|---|
+> | "这次日志很简单，叙述几行就行" | **新建必须复制模板四表结构**，叙述节只作可选补充 |
+> | "四表太长，今天没干啥/没什么可填" | 留占位行不省略结构；空也要有表头 |
+> | "我看过模板了，按结构写的"（实际没动结构） | 收尾用模板逐表比对，缺项即补 |
+> | "异常/交接没有，这俩表就不用了吧" | 无则留占位行，结构不可删 |
+>
 动作标签：完整表（20 个 + 语义）**唯一出处见 CLAUDE.md C 区「记忆库纪律」**（PLAN/CLARIFY/CODE/FIX/BUILD/REVIEW/ADR/TEST/REGRESSION/SMOKE/BLOCKED/UNBLOCKED/HANDOFF/CONTEXT/CORRECT/ESCALATE/GIT/DB/CLEANUP/DOCS），本文件不重复定义。
 分工：agent-activity-log=每模块每阶段 1 行看进度；logs=每角色每日每动作详细查证。
 
@@ -636,4 +651,4 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v10.7 | 2026-08-16 | ①**DSH 深度适配（跨平台通用）**：新增「平台适配」节 + `references/dsh-adaptation.md`（DSH 能力映射：多 agent 角色→`subagent`/`subagent_fork`/`workflow`、问询→`ask_user_question`、命令实测→`pwsh`、审批纪律与 DSH approval 对齐、产出物 CLAUDE.md 保持原名跨平台、入场核对注意 DSH 不自动读 CLAUDE.md）②frontmatter 补 `whenToUse`（DSH 支持的调用提示字段，其他平台忽略）③README 补 DSH 使用说明 + 变更记录表（README 原缺变更记录表，一并补齐）④安装指引：`$DSH_HOME/cordis.patch.yml` 配 `skill-filesystem.customSkillDirs` 指向本仓库（宿主层，TUI 等 profile）+ `$DSH_HOME/skills/` junction 指向仓库（preset 层，GUI 生效）——用户要求「深度适配 DSH 同时保证其他平台可用」 | DSH 适配（agent） |
 | v10.8 | 2026-08-16 | ①**打包为 DSH 插件（npm 包）**：新增 `package.json`（`dsh.bundle` → `cordis.patch.yml`）+ `lib/index.js`（skill provider：把包根目录 `SKILL.md` 注册进 `ctx.skills` host 层，rank 550，resourceBase=包根，`templates/` 等相对引用正常解析）+ `cordis.patch.yml`（插入 `new-project-init` 行）；安装三方式：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹 ②README 安装节改「插件安装 + 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表（Claude Code 技能目录等）③`references/dsh-adaptation.md` 安装与发现补插件安装段 —— 用户要求「像其他 DSH 仓库一样提供 npm/GitHub 安装，同时给出其他平台可用方式」 | DSH 适配（agent） |
 | v10.9 | 2026-08-16 | ①**Reasonix 深度适配（跨平台通用）**：新增 `references/reasonix-adaptation.md`（Reasonix 能力映射全文：多 agent 角色→原生 `task`/`review`/`wait`/`explore` 工具、子代理→`reasonix subagent`、常驻纪律→项目 `AGENTS.md`、安装→`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`（本机 `%APPDATA%\reasonix\config.toml`）、社区发布→reasonix.io/skills 网页表单填仓库 URL）②平台适配节补 Reasonix bullet + 标题补 v10.9 ③README 新增「Reasonix 适配」节 + 跨平台表补 Reasonix 行 + Reasonix 徽章 ④CREATION-LOG 同步 —— 用户要求「适配 Reasonix 并在其社区发布，介绍文档同步更新」 | DSH 适配（agent） |
-| v10.10 | 2026-08-17 | ①**仓库布局重组（跨平台规整）**：references/ 按平台拆分 → `platforms/<平台>/`（reasonix/adaptation.md、dsh/adaptation.md、dsh/cordis.patch.yml）；CREATION-LOG.md → docs/；新增 AGENTS.md（开发者入口）②**私密文件加密**：ISSUES.md/ROADMAP.md/DEVELOPER.md → `_private/`（明文 .gitignore 排除、*.enc AES-GCM 密文入库，scripts/secret.ps1）③**npm 停止维护**：发布改为 GitHub 唯一渠道，README npm 安装删除线标注 ④单仓库化（dev 私有仓退役为备份）——用户要求「平台适配按平台名分目录规整、私密文件不公开、双仓库太麻烦」 | warm-flame-core（skill 迭代） |
+| v10.10 | 2026-08-17 | ①**仓库布局重组（跨平台规整）**：references/ 按平台拆分 → `platforms/<平台>/`（reasonix/adaptation.md、dsh/adaptation.md、dsh/cordis.patch.yml）；CREATION-LOG.md → docs/；新增 AGENTS.md（开发者入口）②**私密文件加密**：ISSUES.md/ROADMAP.md/DEVELOPER.md → `_private/`（明文 .gitignore 排除、*.enc AES-GCM 密文入库，scripts/secret.ps1）③**npm 停止维护**：发布改为 GitHub 唯一渠道，README npm 安装删除线标注 ④单仓库化（dev 私有仓退役为备份）⑤**logs 四表必填门禁（ISSUE-001）**：记忆库写入纪律第 4 条 + logs 细档记录形式补「新建强制步骤（读模板→复制结构→逐表追加→收尾比对）+ 借口令禁表」，模板 05 同步补新建强制步骤——修 agents 写日志未按模板四表/缺头部声明——用户要求「平台适配按平台名分目录规整、私密文件不公开、双仓库太麻烦」+ ISSUE-001 | warm-flame-core（skill 迭代） |
