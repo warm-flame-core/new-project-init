@@ -65,7 +65,7 @@ git push origin main
 ## 发布
 
 - **GitHub（唯一发布渠道）**：push 即发布。安装方式在 README 中说明（Reasonix：`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`；DSH：`dsh plugin --profile web add github:warm-flame-core/new-project-init` 或 customSkillDirs 指向；Claude Code：技能目录）。
-- ~~**npm**：不再维护~~（历史 v10.8-v10.9 曾发布 npm 1.0.1；后续版本仅 GitHub 安装，README 已用删除线标注）。
+- ~~**npm**：不再维护~~（历史 v10.8-v10.9 曾发布 npm 1.0.1；后续版本仅 GitHub 安装，README 已用删除线标注）。**本机因 npm 登录不上不发布 npm 包**；若将来确需发布，请到能登录 npm 的那台电脑执行（`npm publish` 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
 - 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致）。
 
 ## 迭代（优化本 skill）
