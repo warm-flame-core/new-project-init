@@ -86,4 +86,4 @@ New-Item -ItemType Junction -Path C:\Users\MSI\.reasonix\skills\new-project-init
 ## 7. 维护说明
 
 - 本文件只**增加**指引，不复制任何规则（唯一出处原则：规则仍只在 SKILL.md 与模板中定义）。
-- 改本文件 → 按 SKILL.md「逐文件三要素」在 SKILL.md 版本表 + CREATION-LOG.md 追加变更记录行；本文件自身变更记录区为**头部头插**（纯 AI 看）。
+- 改本文件 → 按 SKILL.md「逐文件三要素」在 SKILL.md 版本表 + docs/CREATION-LOG.md 追加变更记录行；本文件自身变更记录区为**头部头插**（纯 AI 看）。

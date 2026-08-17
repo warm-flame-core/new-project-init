@@ -12,9 +12,10 @@ Thumbs.db
 *.log
 tmp/
 
-# 本地计划/备忘（不入库）
-ROADMAP.md
-
 # npm 包依赖（v10.8 起仓库为 DSH 插件包）
 node_modules/
 npm-debug.log*
+
+# 私密文件明文（不入库；*.enc 密文入库）
+_private/*.md
+_private/.secret

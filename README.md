@@ -52,13 +52,13 @@ AI：开始前先问几个问题——
 
 ### 安装（DSH）
 
-**方式一：DSH 插件安装（npm 包 / GitHub）—— 本仓库同时是一个 DSH 插件包（`dsh.bundle`），安装即注册技能**
+**方式一：DSH 插件安装（GitHub）—— 本仓库同时是一个 DSH 插件包（`dsh.bundle`），安装即注册技能**
 
 ```sh
-# npm 包（推荐，发布后）
-dsh plugin --profile web add new-project-init
+# ~~npm 包（v10.9 及以前，已停止维护）~~
+# ~~dsh plugin --profile web add new-project-init~~
 
-# 或从 GitHub 安装
+# 从 GitHub 安装（当前唯一插件渠道）
 dsh plugin --profile web add github:warm-flame-core/new-project-init
 ```
 
@@ -72,7 +72,7 @@ dsh plugin --profile web add github:warm-flame-core/new-project-init
 | **项目级** | 放进项目 `.dsh/skills/` | 随仓库分发 |
 | **配置指向** | 在 `$DSH_HOME/cordis.patch.yml` 加 `skill-filesystem.customSkillDirs` 指向本仓库 | TUI 等宿主面生效 |
 
-> 完整安装与发现机制（优先级/热重载/验证）见 `references/dsh-adaptation.md`「安装与发现」。
+> 完整安装与发现机制（优先级/热重载/验证）见 `platforms/dsh/adaptation.md`「安装与发现」。
 
 ### 调用（DSH）
 
@@ -103,7 +103,7 @@ dsh plugin --profile web add github:warm-flame-core/new-project-init
 
 ## 🧩 Reasonix 适配
 
-本 skill **v10.9 起深度适配 [Reasonix](https://github.com/esengine/DeepSeek-Reasonix)**（Reasonix coding harness）——**规则/模板/产出物完全跨平台**，与 DSH/Claude Code 适配互不冲突，本适配只是「在 Reasonix 里怎么落地」的指引。完整映射见 `references/reasonix-adaptation.md`。
+本 skill **v10.9 起深度适配 [Reasonix](https://github.com/esengine/DeepSeek-Reasonix)**（Reasonix coding harness）——**规则/模板/产出物完全跨平台**，与 DSH/Claude Code 适配互不冲突，本适配只是「在 Reasonix 里怎么落地」的指引。完整映射见 `platforms/reasonix/adaptation.md`。
 
 ### 安装（Reasonix）
 
@@ -192,19 +192,24 @@ New-Item -ItemType Junction -Path C:\Users\MSI\.reasonix\skills\new-project-init
 
 ```
 new-project-init/
-├── package.json                # DSH 插件包清单（dsh.bundle → cordis.patch.yml）
+├── SKILL.md                    # 主文件：问询流程/执行流程/强制规则/附录（26 模板索引，平台无关）
+├── AGENTS.md                   # 开发者入口（布局/开发工作流/发布/迭代说明）
+├── README.md                   # 本文件（对外介绍，含各平台安装说明）
+├── LICENSE / CONTRIBUTING.md / package.json / .gitignore
+├── platforms/                  # 多平台适配，按平台分目录（v10.10 起）
+│   ├── reasonix/adaptation.md  # Reasonix 能力映射全文
+│   ├── dsh/adaptation.md       # DSH 能力映射全文
+│   └── dsh/cordis.patch.yml    # DSH bundle patch（package.json 的 dsh.bundle 指向）
+├── docs/
+│   └── CREATION-LOG.md         # 完整版本演进历史（v3 → v10.x）
 ├── lib/index.js                # DSH 插件：skill provider（把根目录 SKILL.md 注册进技能注册表）
-├── cordis.patch.yml            # DSH bundle patch（插入 new-project-init 插件行）
-├── SKILL.md                    # 主文件：问询流程/执行流程/强制规则/附录（26 模板索引）
-├── README.md                   # 本文件（对外介绍）
-├── CREATION-LOG.md             # 完整版本演进历史（v3 → v10.x）
-├── LICENSE                     # MIT 协议
-├── references/                 # 平台适配参考（dsh-adaptation.md + reasonix-adaptation.md，纯 AI 按需读取）
+├── scripts/                    # 开发脚本（secret.ps1 私密加解密 / publish.ps1 发布前检查）
 ├── templates/                  # 26 个模板，按产出模式分 3 目录
 │   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore 等 17 个）
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
 │   └── 多次-含文件夹/          # 复制整个特化模板文件夹新建（specs 五件套 / agents / checklist）
-└── testing/                    # 四个验证走查（全新/中途/存量/模板）——skill 迭代者用
+├── testing/                    # 四个验证走查（全新/中途/存量/模板）——skill 迭代者用
+└── _private/                   # 私密文件（明文不入库；*.enc AES-GCM 密文入库，仅维护者解密）
 ```
 
 ## 三种产出模式（skill 用完后）
@@ -297,6 +302,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-08-17 | 仓库布局重组（v10.10）：references/ 按平台拆分 → platforms/<平台>/；CREATION-LOG.md → docs/；新增 AGENTS.md；私密文件加密进 _private/（*.enc 入库，明文不入库）；npm 安装停止维护（删除线标注），发布改为 GitHub 唯一渠道 | warm-flame-core（skill 迭代） |
 | 2026-08-16 | 新增「Reasonix 适配」节（v10.9，安装三方式/调用/落地映射/社区发布）；跨平台表补 Reasonix 行；英文摘要与作者栏补 v10.9；增加 Reasonix 徽章；目录树 references/ 行补 reasonix-adaptation.md | DSH 适配（agent） |
 | 2026-08-16 | 打包为 DSH 插件（v10.8）：新增 package.json（`dsh.bundle`）+ lib/index.js（skill provider）+ cordis.patch.yml；DSH 安装节改为「插件安装（npm/GitHub/本地文件夹）+ 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表；目录树补插件文件行 | DSH 适配（agent） |
 | 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |

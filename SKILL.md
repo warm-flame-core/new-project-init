@@ -12,7 +12,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 
 **核心原则**：提问驱动落实（问透再写）· 先设计后动手 · 三种场景三分支（存量完善/中途/全新）· 双受众三因素 · on/off 开关 · 唯一出处 · 讨论驱动迭代 · 记忆库写入纪律 · 文档维护规则（变更记录必填）。
 
-**迭代路径**：本 skill 在日常使用中持续迭代（用中学、学中改）。请求迭代 → 对 agent 说「用 new-project-init 迭代」；迭代纪律见下方「skill 迭代大前提」；版本演进见文末「版本与变更记录」（完整历史见 `CREATION-LOG.md`）。
+**迭代路径**：本 skill 在日常使用中持续迭代（用中学、学中改）。请求迭代 → 对 agent 说「用 new-project-init 迭代」；迭代纪律见下方「skill 迭代大前提」；版本演进见文末「版本与变更记录」（完整历史见 `docs/CREATION-LOG.md`）。
 
 **致谢**：本 skill v9.0 起的设计方法论受 [obra/superpowers](https://github.com/obra/superpowers)（英文原版）与 [jnMetaCode/superpowers-zh](https://github.com/jnMetaCode/superpowers-zh)（中文增强版）启发——技能编写（触发条件式描述、形式匹配失败类型、合理化借口表、TDD 式技能开发）、流程设计（完成前验证、验证条件具体化、集成选项交给用户）等。模板体系与问询流程为本 skill 在 PTB-IMP 项目实战沉淀的原创内容，特此致谢并注明来源。
 
@@ -88,12 +88,12 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 
 > 本 skill 的问询/模板/规则全部**与具体 AI 工具无关**——可在 Claude Code、DeepSeek Harness（DSH）、Reasonix、或其他支持技能机制的 agent 中运行。v10.7 起针对 **DSH**、v10.9 起针对 **Reasonix** 做了深度适配：**不改变任何规则/模板/产出物**，只增加「在对应平台怎么落地」的指引，其他平台照常执行。
 
-- **DSH 运行时**：先读 `references/dsh-adaptation.md`（DSH 能力映射全文）——多 agent 角色用 `subagent`/`subagent_fork`（大规模并行用 `workflow`）落地、问询用 `ask_user_question`、命令实测用 `pwsh`（Windows）、文件操作用 `read`/`write`/`edit`/`glob`/`grep`；产出物保持原名（CLAUDE.md 等），DSH 按需读取。
-- **Reasonix 运行时**：先读 `references/reasonix-adaptation.md`（Reasonix 能力映射全文）——多 agent 角色用原生 `task`/`review`/`wait`/`explore` 工具、子代理用 `reasonix subagent`、常驻纪律并入项目 `AGENTS.md`；安装：`~/.reasonix/skills/` junction 或 `reasonix.toml` 的 `[skills] paths` 指向本仓库；社区发布：https://reasonix.io/skills/（表单填仓库 URL）。
+- **DSH 运行时**：先读 `platforms/dsh/adaptation.md`（DSH 能力映射全文）——多 agent 角色用 `subagent`/`subagent_fork`（大规模并行用 `workflow`）落地、问询用 `ask_user_question`、命令实测用 `pwsh`（Windows）、文件操作用 `read`/`write`/`edit`/`glob`/`grep`；产出物保持原名（CLAUDE.md 等），DSH 按需读取。
+- **Reasonix 运行时**：先读 `platforms/reasonix/adaptation.md`（Reasonix 能力映射全文）——多 agent 角色用原生 `task`/`review`/`wait`/`explore` 工具、子代理用 `reasonix subagent`、常驻纪律并入项目 `AGENTS.md`；安装：`~/.reasonix/skills/` junction 或 `reasonix.toml` 的 `[skills] paths` 指向本仓库；社区发布：https://reasonix.io/skills/（表单填仓库 URL）。
 - **其他平台（Claude Code 等）**：照常执行原流程，本适配说明不改变任何规则。
 - **调用方式（DSH）**：用户说「用 new-project-init …」→ agent 用 `skill` 工具加载本技能；或直接输入 `/new-project-init`（DSH 用户显式调用）。
 - **迭代（DSH）**：对 DSH 说「用 new-project-init 迭代」→ 同样触发「skill 迭代大前提」的讨论驱动纪律。
-- **安装（DSH）**：见 `references/dsh-adaptation.md`「安装与发现」——**插件安装**（v10.8）：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹；**本地文件安装**：放 `$DSH_HOME/skills/`（用户级，推荐）或项目 `.dsh/skills/`，或用 `$DSH_HOME/cordis.patch.yml` 的 `skill-filesystem.customSkillDirs` 指向本仓库。
+- **安装（DSH）**：见 `platforms/dsh/adaptation.md`「安装与发现」——**插件安装**（v10.8）：`dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub，npm 已停止维护）/ 本地文件夹；**本地文件安装**：放 `$DSH_HOME/skills/`（用户级，推荐）或项目 `.dsh/skills/`，或用 `$DSH_HOME/cordis.patch.yml` 的 `skill-filesystem.customSkillDirs` 指向本仓库。
 
 ## 目录用途认知（问询和产出时按此定位）
 
@@ -106,7 +106,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 | `docs/` | **给人看的文档** | 功能说明/功能模块设计/人话版/数据库设计/演进清单/测试手册/部署/分工 |
 | `agents/` | **多 agent 行为规定** | 各角色职责与协作（模板见附录 A） |
 | `specs/module-XXX/` | **模块闭环产出** | plan / acceptance / changelog / review / test 五件套 |
-| `references/` | **平台适配参考**（v10.7/v10.9 新增） | `dsh-adaptation.md`（DSH）+ `reasonix-adaptation.md`（Reasonix）能力映射全文；其他平台运行时可忽略 |
+| `platforms/` | **多平台适配参考**（v10.7/v10.9 新增，v10.10 起按平台分目录） | `platforms/reasonix/adaptation.md`（Reasonix）+ `platforms/dsh/adaptation.md`（DSH）+ `platforms/dsh/cordis.patch.yml`（DSH bundle patch）能力映射全文；其他平台运行时可忽略 |
 | `testing/` | **skill 自身验证走查**（迭代者用，使用者可忽略） | 四个场景走查文件（全新/中途/存量/模板），迭代改动后按需跑，见「skill 迭代大前提」第 4 条 |
 
 ## 记忆库写入纪律（强制，新项目特化时一并建立）
@@ -156,7 +156,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
      - **有人要看的文档（含人+AI 双受众）→ 尾插**：变更记录区放**文档尾部**，新行**追加表格底部**（按时间正序生长，人翻阅符合时间直觉）
    - **分类表（26 模板 + 主文件，逐一指定）**：
      - **头插（纯 AI）**：02 project-context / 03 file-index / 04 activity-log / 05 logs-day / 24 module-lifecycle-flow / 25 handoff-document
-     - **尾插（有人看）**：01 claude-md / 06 agents-role / 07 gitignore / 08-16 docs 各文档 / 17-21 specs 五件套（plan/acceptance/changelog/review/test，用户明确人要看）/ 22 file-templates / 23 tools / 26 document-index + 主文件 SKILL.md / README.md / CREATION-LOG.md
+     - **尾插（有人看）**：01 claude-md / 06 agents-role / 07 gitignore / 08-16 docs 各文档 / 17-21 specs 五件套（plan/acceptance/changelog/review/test，用户明确人要看）/ 22 file-templates / 23 tools / 26 document-index + 主文件 SKILL.md / README.md / docs/CREATION-LOG.md
    - **模板迭代记录 = 产出文档变更记录写法的示例**：模板自身变更记录区怎么写，产出文档就怎么写（同一分类、同一方向）。
    - **署名/签字不要求时间排序**：署名只看「是否经手/过目该文件」，与变更记录的时间排序解耦（署名区按角色/时间自由排列即可）。
    - **禁止**：按日期把新行插到表格中间（需挪动已有行，高风险且易乱序）
@@ -620,7 +620,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 
 ## 版本与变更记录
 
-> 完整历史见 `CREATION-LOG.md`（v3 → v8.0）；此处只留当前版本 + 最近摘要。
+> 完整历史见 `docs/CREATION-LOG.md`（v3 → v8.0）；此处只留当前版本 + 最近摘要。
 
 > 📌 **存量规整（v10.5）**：本版本表按「文档维护规则第 9 条」尾插规整——原 v10.4→v9.0 倒序重排为 v9.0→v10.4 正序（历史行未删改）；此后新行追加底部。
 | 版本 | 日期 | 变更内容 |
@@ -636,3 +636,4 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v10.7 | 2026-08-16 | ①**DSH 深度适配（跨平台通用）**：新增「平台适配」节 + `references/dsh-adaptation.md`（DSH 能力映射：多 agent 角色→`subagent`/`subagent_fork`/`workflow`、问询→`ask_user_question`、命令实测→`pwsh`、审批纪律与 DSH approval 对齐、产出物 CLAUDE.md 保持原名跨平台、入场核对注意 DSH 不自动读 CLAUDE.md）②frontmatter 补 `whenToUse`（DSH 支持的调用提示字段，其他平台忽略）③README 补 DSH 使用说明 + 变更记录表（README 原缺变更记录表，一并补齐）④安装指引：`$DSH_HOME/cordis.patch.yml` 配 `skill-filesystem.customSkillDirs` 指向本仓库（宿主层，TUI 等 profile）+ `$DSH_HOME/skills/` junction 指向仓库（preset 层，GUI 生效）——用户要求「深度适配 DSH 同时保证其他平台可用」 | DSH 适配（agent） |
 | v10.8 | 2026-08-16 | ①**打包为 DSH 插件（npm 包）**：新增 `package.json`（`dsh.bundle` → `cordis.patch.yml`）+ `lib/index.js`（skill provider：把包根目录 `SKILL.md` 注册进 `ctx.skills` host 层，rank 550，resourceBase=包根，`templates/` 等相对引用正常解析）+ `cordis.patch.yml`（插入 `new-project-init` 行）；安装三方式：`dsh plugin --profile web add new-project-init`（npm）/ `dsh plugin --profile web add github:warm-flame-core/new-project-init`（GitHub）/ 本地文件夹 ②README 安装节改「插件安装 + 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表（Claude Code 技能目录等）③`references/dsh-adaptation.md` 安装与发现补插件安装段 —— 用户要求「像其他 DSH 仓库一样提供 npm/GitHub 安装，同时给出其他平台可用方式」 | DSH 适配（agent） |
 | v10.9 | 2026-08-16 | ①**Reasonix 深度适配（跨平台通用）**：新增 `references/reasonix-adaptation.md`（Reasonix 能力映射全文：多 agent 角色→原生 `task`/`review`/`wait`/`explore` 工具、子代理→`reasonix subagent`、常驻纪律→项目 `AGENTS.md`、安装→`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`（本机 `%APPDATA%\reasonix\config.toml`）、社区发布→reasonix.io/skills 网页表单填仓库 URL）②平台适配节补 Reasonix bullet + 标题补 v10.9 ③README 新增「Reasonix 适配」节 + 跨平台表补 Reasonix 行 + Reasonix 徽章 ④CREATION-LOG 同步 —— 用户要求「适配 Reasonix 并在其社区发布，介绍文档同步更新」 | DSH 适配（agent） |
+| v10.10 | 2026-08-17 | ①**仓库布局重组（跨平台规整）**：references/ 按平台拆分 → `platforms/<平台>/`（reasonix/adaptation.md、dsh/adaptation.md、dsh/cordis.patch.yml）；CREATION-LOG.md → docs/；新增 AGENTS.md（开发者入口）②**私密文件加密**：ISSUES.md/ROADMAP.md/DEVELOPER.md → `_private/`（明文 .gitignore 排除、*.enc AES-GCM 密文入库，scripts/secret.ps1）③**npm 停止维护**：发布改为 GitHub 唯一渠道，README npm 安装删除线标注 ④单仓库化（dev 私有仓退役为备份）——用户要求「平台适配按平台名分目录规整、私密文件不公开、双仓库太麻烦」 | warm-flame-core（skill 迭代） |
