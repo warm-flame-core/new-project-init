@@ -563,6 +563,20 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 - **模板对齐 lead 颗粒度原则（v10.0，反馈：多次迭代无法对齐 lead）**：specs/agents 等「多次创建」模板的详细规格以 **lead 实际产出**（如 module-004 五件套）为颗粒度基准——子任务必须行号级引用 + 现状→修法→理由、验收必须可执行不猜、测试必须环境归因；产出时若明显短于基准（如 plan <5KB）说明写简了，对照模板示例段逐节补。
 - **plan 结构以模板为准（v10.1，perm-004 未按子任务拆分教训）**：新模块 plan 结构按模板 17「必填章节核对表」执行（结构 A=复杂模块 §2 模块拆分独立成节 / 结构 B=简单模块可精简但必写理由），**不就近参考同专项旧模块结构**（旧模块可能偏离模板，如 perm-003 的「需求+技术方案主题分区」即结构 B 未说明的变体）；产出后跑「自检四查」（结构核对最优先）。
 - **plan 零改动声明须 grep 验证（v10.2，perm-004 SecurityConfig 教训）**：plan 写「某文件零改动/不动」前，必须先实际 grep/读该文件确认既有约束（URL 级权限、注解、拦截器、前端角色白名单等）不会挡本模块——防「计划假设与代码现实冲突」（实例：声称 SecurityConfig 零改动，但既有 URL 级权限锁死目标接口，开发中途被迫改）。
+- **plan 新增声明须反查（v10.12，perm-007 双身份建表教训）**：plan/任务清单声明「新建表 / 加字段」前，必须用**目标真实表名/列名**精确 grep **全部**迁移与实体（`sql/V<编号>__*.sql` 全量 V01~当前，**勿只查部分区间**）+ `SHOW COLUMNS`/实体定义核对，确认**确实未建**才写「从零新建」；已建则写「复用/改造（引用迁移号）」——与上一条「零改动须 grep」（perm-004）方向互补：声称不动要查，**声称新建更要反查**。防「误判已建为未建 → 任务清单/plan 写从零建表」（实例：perm-007 只 grep V31~V41 漏 V32，且用 `main_subject` 而非目标表名 `subject_association` 精确查，误判未建）
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「这个表肯定没建过，直接建」 | 声明新建前必须用目标真实表名/列名精确 grep 全量迁移（V01~当前）+ 实体核对；已建就写复用 |
+  | 「查过几个迁移文件没看到，应该没有」 | 只查部分区间不算查；漏区间的既有建表（如 V32）会被误判为未建 |
+- **审查修复必须同步 acceptance（v10.12，ISSUE-004 perm-007 教训）**：Reviewer 审查发现问题并**修代码**后，必须**同步核对 acceptance-criteria.md 的对应验收项**——权限点、返回语义等描述更新为与最终实现一致再签 PASS。**Reviewer 签字 = 验收标准已与最终实现逐条一致**，不允许「代码已改、acceptance 还是旧描述」的脱节（Tester 阶段才发现补改 = 违规）。
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「修了代码，验收标准等 Tester 阶段再补」 | 审查修复后必须立即同步 acceptance，Tester 才发现=违规 |
+  | 「acceptance 写得差不多，不用逐条对」 | Reviewer 签字=验收标准与最终实现逐条一致，须逐条核对并同步 |
 - **工具依赖方向为硬规则**：项目代码禁止引用 tools/；固化工具必须通过「删除演练」（删工具后项目照常编译）才允许
   - **借口自查**：
 
@@ -585,6 +599,13 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 - **临时文件用完即删**（记忆纪律第 7 条）；固化工具前先确认复用场景 ≥2 个
 - **文档修改后必填变更记录**（头部有维护声明的文档）：追加 `日期时间|内容|署名` 一行；改完检查引用联动（file-index / 文档索引 / 模板索引）
 - **DOCUMENT-INDEX 机器维护**：docs/DOCUMENT-INDEX.md 只能由 AI 添加/修改条目，人类成员需变更时**转述给 AI 改**（禁止人工直接编辑）；新增文档/模板后立即追加条目 + 变更记录
+- **人工测试手册节必产（v10.12，ISSUE-005 perm-004/007 教训）**：**每个模块完成前必须在「模块改动与人工测试手册」（模板 14）产出本模块节**（含改了什么页面/涉及代码/人工测试步骤含预期/涉及账号数据/测试数据前置），随收尾四查①强制 gate；不允许「模块验收通过但手册没节」，等到用户实测才发现。
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「手册节等用户问再补」 | 模块完成前必产手册节（收尾四查① gate），commit 前置；用户实测才发现=违规 |
+  | 「测试通过就不用写手册步骤」 | 人工测试手册是「commit 前置=用户人工测试通过」的依据，节必产 |
 - commit/push 需用户明确允许，不主动执行
 
 ---
@@ -697,3 +718,4 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v10.9 | 2026-08-16 | ①**Reasonix 深度适配（跨平台通用）**：新增 `references/reasonix-adaptation.md`（Reasonix 能力映射全文：多 agent 角色→原生 `task`/`review`/`wait`/`explore` 工具、子代理→`reasonix subagent`、常驻纪律→项目 `AGENTS.md`、安装→`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`（本机 `%APPDATA%\reasonix\config.toml`）、社区发布→reasonix.io/skills 网页表单填仓库 URL）②平台适配节补 Reasonix bullet + 标题补 v10.9 ③README 新增「Reasonix 适配」节 + 跨平台表补 Reasonix 行 + Reasonix 徽章 ④CREATION-LOG 同步 —— 用户要求「适配 Reasonix 并在其社区发布，介绍文档同步更新」 | DSH 适配（agent） |
 | v10.10 | 2026-08-17 | ①**仓库布局重组（跨平台规整）**：references/ 按平台拆分 → `platforms/<平台>/`（reasonix/adaptation.md、dsh/adaptation.md、dsh/cordis.patch.yml）；CREATION-LOG.md → docs/；新增 AGENTS.md（开发者入口）②**私密文件加密**：ISSUES.md/ROADMAP.md/DEVELOPER.md → `_private/`（明文 .gitignore 排除、*.enc AES-GCM 密文入库，scripts/secret.ps1）③**npm 停止维护**：发布改为 GitHub 唯一渠道，README npm 安装删除线标注 ④单仓库化（dev 私有仓退役为备份）⑤**logs 四表必填门禁（ISSUE-001）**：记忆库写入纪律第 4 条 + logs 细档记录形式补「新建强制步骤（读模板→复制结构→逐表追加→收尾比对）+ 借口令禁表」，模板 05 同步补新建强制步骤——修 agents 写日志未按模板四表/缺头部声明——用户要求「平台适配按平台名分目录规整、私密文件不公开、双仓库太麻烦」+ ISSUE-001 | warm-flame-core（skill 迭代） |
 | v10.11 | 2026-08-17 | **全量体检 + 产出物门禁总览（superpowers-writing-skills 方法论, ISSUE-002）**：①SKILL.md 新增「产出物新建门禁总览」节——通用规则 5 条 + 产出物→模板→必核结构全表（**13 类产出物**：CLAUDE.md/memory 三件套/logs/agents/gitignore/README/docs/specs 五件套/file-templates/tools/checklist/handoff/DOCUMENT-INDEX）+ 通用借口令禁表（5 行，含「把模板挪过去就算建好」「文档简单不套模板」两高发借口）②「探索与产出」第 2 条、「文档维护规则」第 1 条接引门禁核对 ③testing/模板走查加 3b、存量走查加第 6 节「产出物新建门禁核对」（存量完善为重点场景）④RED-GREEN 实测：独立子代理复测确认强制指令可执行、13 类产出物全覆盖、行号一致——修 ISSUE-002（除 logs 外全部产出物缺新建门禁，存量完善补建文档最易暴露）——用 superpowers-writing-skills 对 skill 全量体检 | warm-flame-core（skill 迭代） |
+| v10.12 | 2026-08-17 | **iterate ISSUE-003~007 一批合并（perm-007 实战暴露的 5 个流程漏洞）**：①**plan 新增声明须反查（ISSUE-003）**：SKILL.md 强制规则补「声明新建表/加字段前用目标真实表名/列名精确 grep 全量迁移 V01~当前 + SHOW COLUMNS/实体核对，确未建才从零新建」+ 借口表；模板 17 §3 补 3.1b ②**审查修复必须同步 acceptance（ISSUE-004）**：SKILL.md 强制规则补 + 模板 20 §3「验收标准=最终实现」③**人工测试手册节必产（ISSUE-005）**：SKILL.md 强制规则补 + 模板 24 收尾四查① ④**保留冒烟数据影响人工测试（ISSUE-006）**：模板 14 补「测试数据前置/需清理项」+ 模板 24 冒烟影响检查 ⑤**acceptance 预列单测清单（ISSUE-007）**：模板 18 §1 补「单测清单预列」 ⑥ISSUE-003~007 全部关闭（各模板变更记录与本表同步 v10.12）——2026-08-17 一次处理一批、合并升一个版本 | warm-flame-core（skill 迭代） |

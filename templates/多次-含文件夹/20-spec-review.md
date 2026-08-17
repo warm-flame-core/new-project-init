@@ -67,6 +67,7 @@ specs/module-XXX/review-report.md
 |--------|----------|----------|
 | 匿名 401 | SecurityConfig + RestAuthenticationEntryPoint | 实测 curl 返回 401 JSON ✅ |
 ```
+- **验收标准 = 最终实现（v10.12，ISSUE-004）**：若审查发现问题并**修了代码**，必须**同步核对 acceptance-criteria.md 的对应验收项描述**——先更新 acceptance 到与最终实现一致的表述（如权限点、返回语义），再签 PASS；**Reviewer 签字代表「验收标准已与最终实现逐条一致」**，不能出现「acceptance 还是旧描述、代码已改」的脱节。
 
 ### 4. 架构评估 / 5. 安全评估
 - 架构：分层隔离、依赖方向（Controller→Service→Mapper）、与既有模式一致。
@@ -129,3 +130,4 @@ specs/module-XXX/review-report.md
 | 2026-08-15 | v10.3：模板头部补「📍 变更记录方向」标注（两类分法：读最近=顶部插最新 / 读演进=底部追加，见 SKILL.md 文档维护规则第 9 条） | Reasonix（skill 迭代） |
 | 2026-08-14 | 问题分级扩为三级（需求偏差/阻塞/建议）：结论格式加需求偏差计数、新增 2.1 需求偏差小节（实现按/需求表述/差异点，未确认前不修复）、结构一览与示例编号对齐——perm-003 讨论定案 | Reasonix（skill 迭代） |
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行追加底部（有人看）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
+| 2026-08-17 | v10.12：§3 加「验收标准 = 最终实现」强制项（审查修代码后必修同步 acceptance 验收项描述，Reviewer 签字=验收标准与最终实现逐条一致）——perm-007 审查修复后 acceptance 权限点描述滞后（ISSUE-004），2026-08-17 讨论批准 | Reasonix（skill 迭代） |
