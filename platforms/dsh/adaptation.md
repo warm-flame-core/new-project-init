@@ -1,6 +1,7 @@
 # new-project-init · DSH（DeepSeek Harness）适配说明
 
 > 📍 变更记录（纯 AI 看，头插）：
+> `2026-08-17 | 新增 2b「子代理上下文继承档位（v11.0）」：subagent（后台派发不继承）/subagent_fork（继承）/workflow（继承+prompt 脚本）/goal（常驻），说明各档对「跨平台强门禁 + references 题库可见性」的影响与所需动作；新增「异常提示」段（发现流程被精简/题目缺失 → 停下上报父代理或提醒用户，不凭残缺上下文做）；产出物定位与入场核对两处写死 CLAUDE.md 对齐 v11.0 平台入口映射（正文唯一名由主导平台决定 + 非主导薄入口） | Reasonix（skill 迭代）`
 > `2026-08-16 | 新增：插件安装方式（npm/GitHub/本地文件夹，v10.8 打包为 DSH 插件包） | DSH 适配（agent）`
 > `2026-08-16 | 新增：DSH 适配说明（v10.7） | DSH 适配（agent）`
 
@@ -27,12 +28,25 @@
 | 记忆纪律（memory/ 三件套 + logs） | **项目级落地不变**（memory/ 是项目内唯一出处）；DSH 会话本身持久化、`goal` 记录目标，是补充而非替代 |
 | 会话上下文管理（H 组问询：交接文档/压缩） | 交接文档（memory/handoff/）仍是项目内机制；DSH 侧再叠加会话自身的持久化/压缩，产出的交接文档对两者都适用 |
 | 工具沉淀（tools/，依赖方向 + 删除演练） | 与平台无关；DSH 中临时脚本用 `pwsh` 写，固化进 `tools/` 后同样遵守「项目 → 工具禁止引用」「删除演练」硬规则 |
-| 入场核对（git status + diff --stat） | DSH 用 `pwsh` 跑 git；新会话入场时先读 CLAUDE.md + memory 三件套再核对 git |
+| 入场核对（git status + diff --stat） | DSH 用 `pwsh` 跑 git；新会话入场时先读**入口规范文件**（按「平台入口规范文件」节映射定名，默认 CLAUDE.md，如主导平台为 Reasonix 则 `AGENTS.md`；见 SKILL.md「平台入口规范文件」节）+ memory 三件套再核对 git |
 | 迭代（「用 new-project-init 迭代」） | 对 DSH 会话说同样的话 → agent 用 `skill` 工具加载 → 走「skill 迭代大前提」讨论驱动纪律 |
+
+### 2b. 子代理上下文继承档位（v11.0 新增）
+
+> **关键区别（决定子代理看不看得到 SKILL.md 与 references/场景/ 题库）**：DSH 有多种派发方式，**上下文继承与否不同**——它直接决定「跨平台强门禁」是否天然覆盖该子代理：
+
+| 派发方式 | 上下文继承 | 对门禁/题库的影响 | 需要怎么做 |
+|---|---|---|---|
+| `subagent` | **不继承**（后台派发） | 裸子代理看不到 SKILL.md 全文与 references/场景/ 题库 | 其 prompt 模板（`agents/<role>.md`，模板 06）**必须含「入场先 read `references/场景/<全新\|中途\|存量>-问询.md` 全文再执行」**；否则可能凭残缺上下文现编题目 |
+| `subagent_fork` | **继承本会话上下文** | 父会话已加载 SKILL.md 全文 → 子代理能看到门禁与 references | 正常执行即可；若父会话还没读 references，靠 SKILL.md 强门禁强制去读 |
+| `workflow` | 继承 + 自带 prompt 脚本 | 脚本可显式指定读取哪些文件 | 在 workflow 脚本里显式注明「先读 references 对应文件全文」 |
+| `goal`（长周期） | 跨轮次持续 | 属常驻主代理，天然带上下文 | 正常执行 |
+
+**异常提示（v11.0）**：任何 DSH 子代理/工作流在执行中发现自己**没有 SKILL.md 或 references 上下文、流程被精简、题目缺失** → **停下上报父代理或提醒用户**，不凭残缺上下文猜着做（与 SKILL.md「生成期异常处理」/「跨平台强门禁」红线一致）。兜底指令见模板 06「协作协议」；`agents/<role>.md` 作 prompt 模板时，团队要确保其含 references 必读行。
 
 ## 3. 产出物在 DSH 下的定位
 
-- **CLAUDE.md**：默认**保持原名**——它是跨平台约定（Claude Code/Cursor 等都会读），DSH agent 在入场核对时用 `read` 按需读取，定位不变（项目规范宪法，人+AI 双受众）。纯 DSH 项目若想改名，可在生成时与用户确认改叫 `AGENTS.md`（同为通用约定）——不改默认。
+- **入口规范文件（原 CLAUDE.md）**：默认**保持原名 CLAUDE.md**——它是跨平台约定（Claude Code/Cursor 等都会读）。但按 v11.0「平台入口规范文件」节（ISSUE-013）**正文唯一名由问询主导平台决定**：主导 Claude → `CLAUDE.md`；主导 Reasonix → `AGENTS.md`；主导 Gemini → `GEMINI.md`；其余非主导平台各生成**薄入口文件**（一行引用正文唯一出处，见 SKILL.md「平台入口规范文件」节）。DSH agent 入场核对时用 `read` 按映射读取正文；纯 DSH 项目若主导平台为 DSH 生态，可生成时与用户确认正文叫 `AGENTS.md`（同为通用约定）——不改默认。
 - **agents/<role>.md**：除项目内角色职责外，可直接作 DSH `subagent` 的 prompt 模板（见映射表）。
 - **memory/ 与 logs**：与平台无关，按模板原样生成。
 - **.gitignore / docs/ / specs/**：纯项目文件，无平台差异。

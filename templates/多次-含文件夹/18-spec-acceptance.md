@@ -69,7 +69,7 @@ specs/module-XXX/acceptance-criteria.md
 
 ### §4 验收结论（Tester 签署）
 - 签署人/日期/结论（通过 / 不通过 / 有条件通过）。
-- **署名按三元组**：`<人>-<Tester>-<agent实例>`（如 张三-Tester-lead；无法确认实例先问用户）。
+- **署名按四段式**：`<实体人>-<平台>-<Tester>@<分支>`（无 git 省略 `@分支`），如 warm-flame-core-Reasonix-Tester@feat/xxx；无法确认身份先问用户。
 - **实测记录**：测试数字（如「后端 100/100 + 真实冒烟全矩阵 + 浏览器端到端」）、冒烟矩阵覆盖、**数据清理记录**（冒烟临时数据已恢复基线，账号数）、遗留项标注。
 - 每轮测试失败 → 输出失败详情 → Developer 修复 → 复审后重新执行，结论与轮次对应。
 
@@ -128,3 +128,4 @@ specs/module-XXX/acceptance-criteria.md
 | 2026-08-15 | v10.3：模板头部补「📍 变更记录方向」标注（两类分法：读最近=顶部插最新 / 读演进=底部追加，见 SKILL.md 文档维护规则第 9 条） | Reasonix（skill 迭代） |
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行追加底部（有人看）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
 | 2026-08-17 | v10.12：§1 补「单测清单预列」（每节可选加「对应单测用例」或标题下注明「单测 = 本 acceptance 各节转测试用例」，避免 Tester 边写边补覆盖不完整）——perm-007 Tester 边写单测边补（ISSUE-007），2026-08-17 讨论批准 | Reasonix（skill 迭代） |
+| 2026-08-17 | v11.0：签署/署名按四段式（`<实体人>-<平台>-<Tester>@<分支>`，无 git 省略 `@分支`；如 warm-flame-core-Reasonix-Tester@feat/xxx），替换三元组——与 SKILL.md 文档维护规则第 6 条一致（ISSUE-008） | Reasonix（skill 迭代） |

@@ -74,9 +74,17 @@ git push origin main
 2. **方法论**：加载 `superpowers-writing-skills`（`D:\software\Reasonix\Reasonix_Skill_Ds\superpowers-reasonix`），按 RED-GREEN-REFACTOR（TDD for process docs）：压力场景 → 无 skill 基线失败 → 最小修复 → 复测堵漏洞。
 3. **收尾**：SKILL.md 版本表 + `docs/CREATION-LOG.md` 顶部记录；`testing/` 走查受影响场景。
 4. **跨电脑/跨工作区**：改前先 `git pull`；改后加密 + push；另一台电脑 pull + 解密。
+5. **迭代日期必须用系统当天日期（v11.0 强制，与 SKILL.md「skill 迭代大前提」一致）**：本次迭代写入版本表 / CREATION-LOG / 模板变更记录 / README 变更记录的日期，**取运行迭代这台电脑的系统当天日期**（`Get-Date`），禁止脑补、沿用旧日期、写前一天（教训：v11.0 迭代曾在系统 18 号时把日期写成 17 号）。
 
 ## 平台适配开发（新增平台）
 
 - 平台无关内容进 `SKILL.md` / `templates/` / `testing/`（唯一出处）。
 - 平台特定映射写 `platforms/<平台>/adaptation.md`（如 `platforms/reasonix/`、`platforms/dsh/`），并在 SKILL.md「平台适配」节 + README 各平台节登记。
 - 该平台的适配最好在该平台的电脑/工作区实测开发（如 Reasonix 适配在 Reasonix 环境、DSH 适配在 DSH 环境）。
+
+> **三判据（ISSUE-014，v11.0：判断本次迭代要不要到对应平台实测）**：
+> 1. **日常迭代（仅平台无关内容）→ 免实测**：只改 SKILL.md / templates / references / testing 这类跨平台通用内容、不触碰任何平台能力映射时，无需到各平台实测，正常迭代即可。
+> 2. **新增平台适配 → 需实测**：首次为某平台写 `platforms/<平台>/adaptation.md` 或改映射表时，必须在该平台真实环境实测一遍能力映射（工具名、发现机制、装配），确认能落地。
+> 3. **平台机制变化 → 需实测**：既有平台的发现/装配/工具机制本身有变化（如 DSH 升级、Reasonix 工具集调整），影响到已登记映射时，需回该平台复核并同步 adaptation.md。
+>
+> 判定为「需实测」时，到对应平台那台电脑跑一次最小验证（加载 skill → 走一遍问询/装配）再收尾。

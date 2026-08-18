@@ -1,6 +1,7 @@
 # new-project-init · Reasonix 适配说明
 
 > 📍 变更记录（纯 AI 看，头插）：
+> `2026-08-17 | 新增 2b「子代理上下文继承档位（v11.0）」：task/subagent（独立会话不继承）、subagent create+profile（模板即 prompt）、review/explore/research（父驱动）、常驻主代理/-c --resume（带上下文）；说明各档对「跨平台强门禁 + references 题库可见性」的影响与所需动作；新增「异常提示」段（流程被精简/题目缺失 → 停下上报父代理或提醒用户）；产出物定位补齐平台入口映射协调（Reasonix 为主导平台时正文名为 AGENTS.md，CLAUDE.md 转薄入口） | Reasonix（skill 迭代）`
 > `2026-08-16 | 新增：Reasonix 适配说明（v10.9） | DSH 适配（agent）`
 
 > 本文件是 SKILL.md「平台适配」节的展开。**只提供「在 Reasonix 中怎么落地」的指引，不改变 skill 的任何规则/模板/产出物**；在 DSH、Claude Code、或其他支持技能机制的 agent 中运行时忽略本文件，照常执行 SKILL.md 原流程。
@@ -33,9 +34,23 @@
 | 审批纪律（commit/push、SQL 先确认） | 与 Reasonix 的权限/确认机制对齐（默认需用户确认时照常停下问） |
 | 迭代（「用 new-project-init 迭代」） | 对 Reasonix 会话说同样的话 → 加载本 skill → 走「skill 迭代大前提」讨论驱动纪律 |
 
+### 2b. 子代理上下文继承档位（v11.0 新增）
+
+> **关键区别（决定子代理看不看得到 SKILL.md 与 references/场景/ 题库）**：Reasonix 有独立会话子代理（`task`/`subagent`）与父驱动只读子代理（`review`/`explore`/`research`）两类，**上下文继承与否不同**——它直接决定「跨平台强门禁」是否天然覆盖该子代理：
+
+| 派发方式 | 上下文继承 | 对门禁/题库的影响 | 需要怎么做 |
+|---|---|---|---|
+| `task`（原生子任务/子代理） | **独立会话，不继承父上下文** | 裸子代理看不到 SKILL.md 全文与 references/场景/ 题库 | 其 prompt（或用 `agents/<role>.md` 作 profile）**必须含「入场先 read `references/场景/<全新\|中途\|存量>-问询.md` 全文再执行」**；否则可能凭残缺上下文现编题目 |
+| `subagent create` + profile | profile 即 prompt 模板 | `agents/<role>.md` 作 profile 时，模板若含 references 必读行则可见 | 团队要确保 role 模板含 references 必读（见模板 06 兜底指令） |
+| `review`（代码审查） | 父驱动（review 基于 diff/仓库） | 由父代理喂入上下文；父已读 SKILL.md 则门禁生效 | 审查前仍应先读 references 对应场景做核对（观照门禁） |
+| `explore`（只读代码探索）/ `research`（web+code 只读） | 父驱动子代理 | 上下文由父代理传入 | 派发时在 prompt 里显式「先读 references 对应文件全文」再执行 |
+| 常驻主代理 / `-c`/`--resume` 接续会话 | 带完整上下文 | 门禁天然覆盖 | 正常执行 |
+
+**异常提示（v11.0）**：任何 Reasonix 子代理/子任务在执行中发现自己**没有 SKILL.md 或 references 上下文、流程被精简、题目缺失** → **停下上报父代理或提醒用户**，不凭残缺上下文猜着做（与 SKILL.md「生成期异常处理」/「跨平台强门禁」红线一致）。兜底指令见模板 06「协作协议」；`agents/<role>.md` 作 profile 时，团队要确保其含 references 必读行。
+
 ## 3. 产出物在 Reasonix 下的定位
 
-- **CLAUDE.md**：默认**保持原名**（跨平台约定）。Reasonix 的常驻纪律文件是 **`AGENTS.md`**——生成时可提示用户：把 CLAUDE.md 的核心纪律（工作流/记忆纪律/入场核对）摘要进项目 `AGENTS.md`，Reasonix 每次会话都会读到；CLAUDE.md 仍作完整规范宪法。
+- **入口规范文件（原 CLAUDE.md）**：默认**保持原名 CLAUDE.md**（跨平台约定）。Reasonix 的常驻纪律文件是 **`AGENTS.md`**——生成时可提示用户：把入口规范文件的核心纪律（工作流/记忆纪律/入场核对）摘要进项目 `AGENTS.md`，Reasonix 每次会话都会读到；CLAUDE.md 仍作完整规范宪法。若用户选 **Reasonix 为主导平台**，则按 v11.0「平台入口规范文件」节（ISSUE-013）**正文唯一名为 `AGENTS.md`**，CLAUDE.md 反而作非主导薄入口（一行引用正文）。
 - **agents/<role>.md**：可直接作 `reasonix subagent create` 的 profile 输入（见映射表）。
 - **memory/ 与 logs**：与平台无关，按模板原样生成。
 - **.gitignore / docs/ / specs/**：纯项目文件，无平台差异。

@@ -2,7 +2,7 @@
 > 🗂️ **产出模式**：多次创建-含文件夹（复制特化模板文件夹新建，如 specs/module-XXX/）；模板目录：templates/多次-含文件夹/（v10.0 目录规整）
 > 📍 **变更记录方向**：新行追加底部（有人看；见 SKILL.md 文档维护规则第 9 条）
 
-> ⚠️ **维护声明**：本文档修改后必须在相应记录处追加（plan §6 变更记录 / changelog 变更记录 / 复用记录等）——`YYYY-MM-DD HH:mm | 变更内容 | 署名`（署名按三元组 人-角色-实例，无法确认实例先问用户）。
+> ⚠️ **维护声明**：本文档修改后必须在相应记录处追加（plan §6 变更记录 / changelog 变更记录 / 复用记录等）——`YYYY-MM-DD HH:mm | 变更内容 | 署名`（署名按四段式 实体人-平台-角色@分支（无 git 省略 @分支）；无法确认身份先问用户）。
 > 模板用途：**每模块一份**的「多次创建文件」。skill 结束时可在 `specs/` 生成示例模块目录（如 `specs/module-000-示例/`）供复制参照；后续 agent 新建模块 plan 时按下方详细规格撰写。
 > 标准基准：本模板以 PTB-IMP 项目 **module-004（lead 样板，28.5KB）** 为质量基准——若产出 plan 明显比骨架长不了多少（如 <5KB），说明写简了，对照本模板详细规格逐节补。
 
@@ -102,7 +102,7 @@ specs/module-XXX/plan.md —— 结构 A 完整骨架（module-004 同款）
 ```
 | 角色 | 状态 | 日期 | 意见/署名 |
 ```
-（Planner 产出 / **用户/team-lead 审批——批准后由 Developer 入场核对时回填「✅ 已批准」，防换会话丢失（PTB-IMP perm-001 实测教训）** / Developer 接收 / Reviewer PASS / Tester 通过；署名按三元组 `<人>-<角色>-<实例>`，如 张三-Developer-lead）
+（Planner 产出 / **用户/team-lead 审批——批准后由 Developer 入场核对时回填「✅ 已批准」，防换会话丢失（PTB-IMP perm-001 实测教训）** / Developer 接收 / Reviewer PASS / Tester 通过；署名按四段式 `<实体人>-<平台>-<角色>@<分支>`（无 git 省略 `@分支`），如 warm-flame-core-Reasonix-Developer@feat/xxx）
 
 ### 禁止占位符（plan 质量红线，借鉴 writing-plans）
 以下都是**计划缺陷**，绝不要写进 plan：
@@ -191,3 +191,4 @@ specs/module-XXX/plan.md —— 结构 A 完整骨架（module-004 同款）
 | 2026-08-15 | v10.3：模板头部补「📍 变更记录方向」标注（两类分法：读最近=顶部插最新 / 读演进=底部追加，见 SKILL.md 文档维护规则第 9 条） | Reasonix（skill 迭代） |
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行追加底部（有人看）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
 | 2026-08-17 | v10.12：§3 加「3.1b 新增表/字段反查」（声明新建前用目标真实表名/列名精确 grep 全量迁移 V01~当前 + SHOW COLUMNS/实体核对，确未建才从零新建；已建写复用）——perm-007 双身份建表教训（只查 V31~V41 漏 V32、用错关键词误判已建为未建），2026-08-17 讨论批准 | Reasonix（skill 迭代） |
+| 2026-08-17 | v11.0：签署/署名按四段式（`<实体人>-<平台>-<角色>@<分支>`，无 git 省略 `@分支`；如 warm-flame-core-Reasonix-Developer@feat/xxx），替换三元组——与 SKILL.md 文档维护规则第 6 条一致（ISSUE-008） | Reasonix（skill 迭代） |
