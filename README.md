@@ -164,6 +164,69 @@ New-Item -ItemType Junction -Path C:\Users\MSI\.reasonix\skills\new-project-init
 
 ---
 
+
+## 🧩 Codex 适配
+
+本 skill **v11.1 起深度适配 [Codex](https://openai.com/codex)**（OpenAI Codex coding assistant）——**规则/模板/产出物完全跨平台**，与 DSH/Reasonix/Claude Code 适配互不冲突，本适配只是「在 Codex 里怎么落地」的指引。完整映射见 platforms/codex/adaptation.md。
+
+### 安装（Codex）
+
+**方式一：全局记忆目录（推荐，集中管理）**
+
+将 skill 放进 E:\Cache\Codex\_skill\new-project-init\（本机配置的全局记忆目录）：
+
+`powershell
+# 复制或链接
+Copy-Item -Path "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init" -Destination "E:\Cache\Codex\_skill\new-project-init" -Recurse
+# 或创建符号链接（需管理员权限）
+New-Item -ItemType SymbolicLink -Path "E:\Cache\Codex\_skill\new-project-init" -Target "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init"
+`
+
+**方式二：配置指向（保持单一来源）**
+
+在 Codex 全局配置（C:\Users\Lenovo\.codex\config.toml）里添加：
+
+`	oml
+[skills]
+paths = ["D:\\software\\Reasonix\\Reasonix_Skill_Ds\\new-project-init"]
+`
+
+> 注：需确认 Codex 是否支持 [skills] 配置节；若不支持，使用环境变量方案。
+
+**方式三：环境变量（备选）**
+
+设置 CODEX_HOME 环境变量指向自定义目录：
+
+`powershell
+[Environment]::SetEnvironmentVariable('CODEX_HOME', 'E:\Cache\Codex', 'User')
+`
+
+然后将 skill 放进 $CODEX_HOME/skills/new-project-init/。
+
+**方式四：项目级（工作区豁免）**
+
+把仓库复制/链接到 <项目>/.codex/skills/（仅该项目可见，豁免全局记忆）。
+
+### 调用（Codex）
+
+- 对 Codex 说「**用 new-project-init 完善文档** / **初始化项目** / **补建文档体系**」
+- 常驻纪律：把 CLAUDE.md 的核心纪律摘要进项目 AGENTS.md 或 CLAUDE.md，Codex 每次会话都会读到
+
+### Codex 落地映射（skill 概念 → Codex 工具）
+
+| skill 概念 | Codex 落地 |
+|---|---|
+| 多 agent 角色（Planner/Developer/Reviewer/Tester） | spawn_agent / send_input / wait_agent（gents/<role>.md 直接作 prompt 模板） |
+| 问询（🔴 一次一个 / 🟡 批量） | equest_user_input（支持结构化问题、选项） |
+| 命令实测（构建/测试，禁止猜） | shell_command（支持 PowerShell/cmd） |
+| 记忆纪律 | memory/ 三件套项目级落地不变；Codex 的会话持久化是补充 |
+| 审批纪律（commit/push、SQL 先确认） | 与 Codex 的 sandbox_permissions 机制对齐（equire_escalated 需用户确认） |
+
+### 平台适配迭代判据（v11.0，ISSUE-014）
+
+迭代到**平台适配**时，用三判据决定是否回对应平台实测：**①日常迭代（仅改平台无关内容）→ 免实测；②新增平台适配 → 必到该平台实测能力映射；③平台机制有变（DSH 升级 / Reasonix 工具集调整影响已登记映射）→ 回平台复核并同步 platforms/<平台>/adaptation.md。**完整判据见 AGENTS.md「平台适配开发」节——本 skill 的规则/模板/产出物始终平台无关，判据只作用于"平台落地指引是否需要复核"。
+
+---
 ## ✨ 核心特性
 
 - **三种场景三分支**：存量完善（4 轮 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查，**核心场景**）/ 中途加入（7 轮，先探索 git/目录/规范）/ 全新项目（11 轮问询）
@@ -328,3 +391,4 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 | 2026-08-16 | 打包为 DSH 插件（v10.8）：新增 package.json（`dsh.bundle`）+ lib/index.js（skill provider）+ cordis.patch.yml；DSH 安装节改为「插件安装（npm/GitHub/本地文件夹）+ 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表；目录树补插件文件行 | DSH 适配（agent） |
 | 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |
 | 2026-08-16 | 新增「DSH 适配」节（v10.7，安装/调用/落地映射三要点）；README 补变更记录表（原缺，按文档维护规则第 1 条补齐） | DSH 适配（agent） |
+
