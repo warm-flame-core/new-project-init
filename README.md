@@ -171,41 +171,42 @@ New-Item -ItemType Junction -Path C:\Users\MSI\.reasonix\skills\new-project-init
 
 ### 安装（Codex）
 
-**方式一：全局记忆目录（推荐，集中管理）**
+**方式一：Junction链接（推荐，保持单一来源）**
 
-将 skill 放进 E:\Cache\Codex\_skill\new-project-init\（本机配置的全局记忆目录）：
+创建Junction链接（Windows，不需要管理员权限）：
 
-`powershell
-# 复制或链接
-Copy-Item -Path "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init" -Destination "E:\Cache\Codex\_skill\new-project-init" -Recurse
-# 或创建符号链接（需管理员权限）
-New-Item -ItemType SymbolicLink -Path "E:\Cache\Codex\_skill\new-project-init" -Target "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init"
-`
+```powershell
+# 创建Junction链接
+New-Item -ItemType Junction -Path "$CODEX_HOME/skills/new-project-init" -Target "/path/to/new-project-init"
+```
 
-**方式二：配置指向（保持单一来源）**
+> **优点**：改动自动同步，无需手动复制；不占用额外磁盘空间。
 
-在 Codex 全局配置（C:\Users\Lenovo\.codex\config.toml）里添加：
+**方式二：复制（简单但需手动同步）**
 
-`	oml
+复制skill到Codex技能目录：
+
+```powershell
+# 复制skill
+Copy-Item -Path "/path/to/new-project-init" -Destination "$CODEX_HOME/skills/new-project-init" -Recurse
+```
+
+> **注意**：后续迭代需要手动同步，建议使用Junction链接。
+
+**方式三：配置指向（高级）**
+
+在Codex全局配置（`$CODEX_HOME/config.toml`）里添加：
+
+```toml
 [skills]
-paths = ["D:\\software\\Reasonix\\Reasonix_Skill_Ds\\new-project-init"]
-`
+paths = ["/path/to/new-project-init"]
+```
 
-> 注：需确认 Codex 是否支持 [skills] 配置节；若不支持，使用环境变量方案。
-
-**方式三：环境变量（备选）**
-
-设置 CODEX_HOME 环境变量指向自定义目录：
-
-`powershell
-[Environment]::SetEnvironmentVariable('CODEX_HOME', 'E:\Cache\Codex', 'User')
-`
-
-然后将 skill 放进 $CODEX_HOME/skills/new-project-init/。
+> **注**：需确认Codex是否支持`[skills]`配置节；若不支持，使用环境变量方案。
 
 **方式四：项目级（工作区豁免）**
 
-把仓库复制/链接到 <项目>/.codex/skills/（仅该项目可见，豁免全局记忆）。
+把仓库复制/链接到`<项目>/.codex/skills/`（仅该项目可见，豁免全局记忆）。
 
 ### 调用（Codex）
 
@@ -391,4 +392,9 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 | 2026-08-16 | 打包为 DSH 插件（v10.8）：新增 package.json（`dsh.bundle`）+ lib/index.js（skill provider）+ cordis.patch.yml；DSH 安装节改为「插件安装（npm/GitHub/本地文件夹）+ 本地文件安装」双方式，新增「其他平台的使用方式」跨平台表；目录树补插件文件行 | DSH 适配（agent） |
 | 2026-08-16 | README 白话化重写：开头加大白话介绍、新增「大白话 × 专业词对照表」、DSH 适配节前置扩写（安装/调用/映射）、致谢补全组员 wshsds（[gitee.com/wshsds](https://gitee.com/wshsds)）、增加 DSH 适配徽章 | DSH 适配（agent） |
 | 2026-08-16 | 新增「DSH 适配」节（v10.7，安装/调用/落地映射三要点）；README 补变更记录表（原缺，按文档维护规则第 1 条补齐） | DSH 适配（agent） |
+
+
+
+
+
 

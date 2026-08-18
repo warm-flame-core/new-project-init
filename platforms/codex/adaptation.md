@@ -10,7 +10,7 @@
 - **技能格式**：与 Reasonix/DSH/Claude Code 相同——`SKILL.md` + YAML frontmatter（`name` 必须 kebab-case、`description` 必填）。本 skill 的 frontmatter 直接兼容，无需改动。
 - **技能根（按优先级）**：
   - 全局：`~/.codex/skills/`（默认，可通过环境变量 `CODEX_HOME` 覆盖）
-  - 自定义：`E:\Cache\Codex\_skill\`（本机配置的全局记忆目录）
+  - 自定义：`/skills\`（本机配置的全局记忆目录）
   - 项目级：`<项目根>/.codex/skills/`（工作区 skill，豁免全局记忆）
 - **验证**：在 Codex 会话中，skill 会根据 `description` 自动路由；用户说「用 new-project-init …」或任务匹配 description → Codex 加载并执行本 skill。
 - **调用**：用户显式调用时，直接说「用 new-project-init 初始化项目」或「用 new-project-init 迭代」即可。
@@ -63,45 +63,49 @@
 
 ## 5. 安装与发现（Codex）
 
-### 方式一：全局记忆目录（推荐，集中管理）
+### 方式一：Junction链接（推荐，保持单一来源）
 
-将 skill 放进 `E:\Cache\Codex\_skill\new-project-init\`（本机配置的全局记忆目录）：
+创建Junction链接（Windows，不需要管理员权限）：
 
 ```powershell
-# 复制或链接
-Copy-Item -Path "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init" -Destination "E:\Cache\Codex\_skill\new-project-init" -Recurse
-# 或创建符号链接（需管理员权限）
-New-Item -ItemType SymbolicLink -Path "E:\Cache\Codex\_skill\new-project-init" -Target "D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init"
+# 创建Junction链接
+New-Item -ItemType Junction -Path "$CODEX_HOME/skills/new-project-init" -Target "/path/to/new-project-init"
 ```
 
-### 方式二：配置指向（保持单一来源）
+> **优点**：改动自动同步，无需手动复制；不占用额外磁盘空间。
 
-在 Codex 全局配置（`C:\Users\Lenovo\.codex\config.toml`）里添加：
+### 方式二：复制（简单但需手动同步）
+
+复制skill到Codex技能目录：
+
+```powershell
+# 复制skill
+Copy-Item -Path "/path/to/new-project-init" -Destination "$CODEX_HOME/skills/new-project-init" -Recurse
+```
+
+> **注意**：后续迭代需要手动同步，建议使用Junction链接。
+
+### 方式三：配置指向（高级）
+
+在Codex全局配置（`$CODEX_HOME/config.toml`）里添加：
 
 ```toml
 [skills]
-paths = ["D:\\software\\Reasonix\\Reasonix_Skill_Ds\\new-project-init"]
+paths = ["/path/to/new-project-init"]
 ```
 
-> 注：需确认 Codex 是否支持 `[skills]` 配置节；若不支持，使用环境变量方案。
-
-### 方式三：环境变量（备选）
-
-设置 `CODEX_HOME` 环境变量指向自定义目录：
-
-```powershell
-[Environment]::SetEnvironmentVariable('CODEX_HOME', 'E:\Cache\Codex', 'User')
-```
-
-然后将 skill 放进 `$CODEX_HOME/skills/new-project-init/`。
+> **注**：需确认Codex是否支持`[skills]`配置节；若不支持，使用环境变量方案。
 
 ### 方式四：项目级（工作区豁免）
 
-把仓库复制/链接到 `<项目>/.codex/skills/`（仅该项目可见，豁免全局记忆）。
+把仓库复制/链接到`<项目>/.codex/skills/`（仅该项目可见，豁免全局记忆）。
 
-**验证**：在 Codex 会话中，skill 会根据 `description` 自动路由；用户说「用 new-project-init …」即可触发。
+**验证**：在Codex会话中，skill会根据`description`自动路由；用户说「用 new-project-init …」即可触发。
 
 ## 6. 维护说明
 
 - 本文件只**增加**指引，不复制任何规则（唯一出处原则：规则仍只在 SKILL.md 与模板中定义）。
 - 改本文件 → 按 SKILL.md「逐文件三要素」在 SKILL.md 版本表 + docs/CREATION-LOG.md 追加变更记录行；本文件自身变更记录区为**头部头插**（纯 AI 看）。
+
+
+
