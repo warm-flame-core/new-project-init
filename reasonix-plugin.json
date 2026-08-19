@@ -1,0 +1,11 @@
+{
+  "apiVersion": "reasonix.io/plugin/v2",
+  "name": "new-project-init",
+  "version": "1.1.0",
+  "description": "项目文档体系初始化 skill：提问驱动落实文档规范、固化 AI 协作工作流，以「存量完善」为核心，跨 DSH / Reasonix / Claude Code / Codex 可用。",
+  "requires": [],
+  "provides": [],
+  "contributes": {
+    "skills": ["."]
+  }
+}
