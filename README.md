@@ -385,6 +385,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-08-19 | v11.1：补录 Codex 平台适配到版本表（自身已在 README 有「Codex 适配」节）；本次为「上架计划准备」——用户要求恢复 npm 安装渠道并上架 awesome-dsh-plugin 插件市场，计划书完整写入 `_private/上架-00~04`（执行计划 DSH 交接 / awesome-dsh-plugin 条目 / 描述文案 / DSH 实测清单 / 测试记录模板），ISSUES 记 ISSUE-015；**npm 恢复发布 / DSH 实测 / 上架 PR 由后续 DSH 解密按计划书独立执行**，本次只落盘 + 版本记录，日期取系统当天 | Reasonix（skill 迭代） |
 | 2026-08-18 | v11.0（README 对齐 + 推荐，日期取系统当天 08-18）：README 全量对齐 v11.0 大改——模板数 26→31（27~31 可装配）、目录结构补 references/ 与 31 模板/一次性 22 个、CREATION-LOG 版本 v11.0、存量完善定位补平台入口映射（CLAUDE.md/AGENTS.md 由主导平台定名）；新增「同类工具与推荐（superpowers 生态）」小节（原生态 obra/superpowers + 中文版 superpowers-zh + Reasonix 移植 superpowers-reasonix，注明原生版对存量完善适配不佳、本 skill 是差异化补充；其他平台移植未能联网核实、未编造仓库名） | Reasonix（skill 迭代） |
 | 2026-08-17 | v11.0：平台适配节新增「平台适配迭代判据」（ISSUE-014：日常迭代免实测/新增平台必实测/平台机制变需复核，完整判据见 AGENTS.md）；新增模板 30/31（git worktrees / 并行 agent 调度，BL-01/02 可装配默认关）与四段式署名/排版/commit/PR 等 v11.0 迭代说明 | Reasonix（skill 迭代） |
 | 2026-08-17 | 仓库布局重组（v10.10）：references/ 按平台拆分 → platforms/<平台>/；CREATION-LOG.md → docs/；新增 AGENTS.md；私密文件加密进 _private/（*.enc 入库，明文不入库）；npm 安装停止维护（删除线标注），发布改为 GitHub 唯一渠道 | warm-flame-core（skill 迭代） |
