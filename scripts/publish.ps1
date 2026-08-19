@@ -73,7 +73,7 @@ $skillVer = (Select-String -Path (Join-Path $root "SKILL.md") -Pattern "^\| (v[0
 Write-Host "  CREATION-LOG 顶部: $logVer | SKILL.md 版本表尾: $skillVer"
 if ($logVer -ne $skillVer) { $fail += "版本号不一致：CREATION-LOG=$logVer, SKILL.md=$skillVer" }
 $npmVer = (Get-Content (Join-Path $root "package.json") -Raw | ConvertFrom-Json).version
-Write-Host "  package.json version: $npmVer（npm 已停止维护，仅提示）"
+Write-Host "  package.json version: $npmVer（npm 已恢复发布，当前 1.1.0）"
 
 # 5) git 跟踪无明文
 Write-Host "== 5/5 git 跟踪无明文 =="

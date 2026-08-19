@@ -5,7 +5,7 @@
 
 ## 这是什么
 
-`new-project-init` 是一个「项目文档体系初始化」skill：**以存量完善为核心**（优化已有项目文档/规范、固化 AI 分角色协作工作流），同时覆盖中途加入补建体系与新项目开工前。提问驱动落实，26 个模板 + 四场景验证走查。
+`new-project-init` 是一个「项目文档体系初始化」skill：**以存量完善为核心**（优化已有项目文档/规范、固化 AI 分角色协作工作流），同时覆盖中途加入补建体系与新项目开工前。提问驱动落实，31 个模板 + 四场景验证走查。
 
 **架构理念**：skill 本体（SKILL.md + templates/ + testing/）平台无关；多平台适配按平台名分目录放在 `platforms/<平台>/`，像项目管理一样规整。
 
@@ -17,12 +17,13 @@ new-project-init/
 ├── AGENTS.md                 # 本文件（开发者入口）
 ├── README.md                 # 对外介绍（含各平台安装说明）
 ├── LICENSE / CONTRIBUTING.md / package.json / .gitignore
-├── templates/                # 26 个模板，按产出模式分 3 目录（平台无关核心资产）
+├── templates/                # 31 个模板，按产出模式分 3 目录（平台无关核心资产）
 ├── testing/                  # 四个场景验证走查（全新/中途/存量/模板）
+├── references/               # 场景问询题库外置（跨平台强门禁必读）
 ├── platforms/                # ★ 多平台适配，按平台分目录
 │   ├── reasonix/adaptation.md        # Reasonix 能力映射全文
 │   ├── dsh/adaptation.md             # DSH 能力映射全文
-│   └── dsh/cordis.patch.yml          # DSH bundle patch（npm 不再维护，GitHub 安装仍用）
+│   └── dsh/cordis.patch.yml          # DSH bundle patch（npm/GitHub 安装均用）
 ├── docs/
 │   └── CREATION-LOG.md       # 完整版本演进历史
 ├── lib/
@@ -64,8 +65,8 @@ git push origin main
 
 ## 发布
 
-- **GitHub（唯一发布渠道）**：push 即发布。安装方式在 README 中说明（Reasonix：`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`；DSH：`dsh plugin --profile web add github:warm-flame-core/new-project-init` 或 customSkillDirs 指向；Claude Code：技能目录）。
-- ~~**npm**：不再维护~~（历史 v10.8-v10.9 曾发布 npm 1.0.1；后续版本仅 GitHub 安装，README 已用删除线标注）。**本机因 npm 登录不上不发布 npm 包**；若将来确需发布，请到能登录 npm 的那台电脑执行（`npm publish` 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
+- **npm**：已恢复发布（v11.2 起重新维护，当前版本 1.1.0；安装：`dsh plugin --profile web add new-project-init`，免生成构建批准）。发布前先 `npm whoami --registry https://registry.npmjs.org` 确认登录，再 `npm publish --registry https://registry.npmjs.org`（publish 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
+- **GitHub（push 即发布）**：安装方式在 README 中说明（DSH：`dsh plugin --profile web add new-project-init` / `github:warm-flame-core/new-project-init` 或 customSkillDirs 指向；Reasonix：`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`；Claude Code：技能目录）。
 - 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致）。
 
 ## 迭代（优化本 skill）

@@ -1,6 +1,8 @@
 # new-project-init · DSH（DeepSeek Harness）适配说明
 
 > 📍 变更记录（纯 AI 看，头插）：
+> `2026-08-19 | npm 恢复发布（ISSUE-015 执行）：插件安装段补注「npm 已恢复发布 v1.1.0（推荐，免生成构建批准）」，README/SKILL/AGENTS 同步恢复 npm 渠道 | warm-flame-core-DSH-Developer@main`
+> `2026-08-19 | DSH 适配复核（上架前，ISSUE-015）：命令实测行补注——官方 tool-catalog 通用注册名为 bash（@deepseek-ai/dsh-tool-bash），官方 shell 能力含 local/pwsh providers（deepseek-harness AGENTS.md），DSH Desktop 实际注入 pwsh；其余能力映射 8 项核对通过（ask_user_question / subagent·subagent_fork·workflow·goal / approval: ask / customSkillDirs / dsh plugin add / rank 100-550 / profile·$DSH_HOME 约定），lib/index.js 与 @deepseek-ai/dsh-skill 协议一致 | DSH（适配复核，warm-flame-core-DSH-Developer@main）`
 > `2026-08-17 | 新增 2b「子代理上下文继承档位（v11.0）」：subagent（后台派发不继承）/subagent_fork（继承）/workflow（继承+prompt 脚本）/goal（常驻），说明各档对「跨平台强门禁 + references 题库可见性」的影响与所需动作；新增「异常提示」段（发现流程被精简/题目缺失 → 停下上报父代理或提醒用户，不凭残缺上下文做）；产出物定位与入场核对两处写死 CLAUDE.md 对齐 v11.0 平台入口映射（正文唯一名由主导平台决定 + 非主导薄入口） | Reasonix（skill 迭代）`
 > `2026-08-16 | 新增：插件安装方式（npm/GitHub/本地文件夹，v10.8 打包为 DSH 插件包） | DSH 适配（agent）`
 > `2026-08-16 | 新增：DSH 适配说明（v10.7） | DSH 适配（agent）`
@@ -22,7 +24,7 @@
 | 多 agent 角色（Planner/Developer/Reviewer/Tester，`agents/<role>.md`） | `subagent`（后台派发）/ `subagent_fork`（继承本会话上下文）；`agents/<role>.md` 直接作为子代理 prompt 模板（职责/输出物/检查清单原样可用） |
 | 大规模并行 / 多阶段协作（多模块同时推进） | `workflow` 工具（脚本扇出到多个子代理，分阶段收集结构化结果） |
 | 长周期连续目标（如「把整套文档体系补齐」） | `goal` 工具（跨轮次持续推进同一目标） |
-| 命令实测（构建/测试/运行，强制「不猜」） | `pwsh`（Windows，如 `mvn compile`、`npm run build`）；非 Windows 用 `tool-bash` |
+| 命令实测（构建/测试/运行，强制「不猜」） | `pwsh`（Windows / DSH Desktop 实际注入，如 `mvn compile`、`npm run build`）；非 Windows / 官方通用注册名为 `bash`（`@deepseek-ai/dsh-tool-bash`，官方 shell 能力含 local/pwsh providers） |
 | 文件系统（读/写/编辑/检索） | `read` / `write` / `edit` / `glob` / `grep`（注意 DSH 的 fs-observation-policy：编辑前先读） |
 | 文件沙箱与审批 | DSH 默认 `workspace-write` + `approval: ask`；workspace 外的写操作会请求授权——与 skill「commit/push 需允许」「SQL 先展示确认」纪律天然一致 |
 | 记忆纪律（memory/ 三件套 + logs） | **项目级落地不变**（memory/ 是项目内唯一出处）；DSH 会话本身持久化、`goal` 记录目标，是补充而非替代 |
@@ -67,7 +69,7 @@ skill 目录 = `<root>/new-project-init/`（含 SKILL.md + templates/ + testing/
 **插件安装（v10.8 起，本仓库同时是 DSH 插件包 `new-project-init`，`dsh.bundle` 自动注册技能 provider）**：
 
 ```sh
-dsh plugin --profile web add new-project-init                    # npm 包（发布后）
+dsh plugin --profile web add new-project-init                    # npm 包（推荐，npm 已恢复发布 v1.1.0）
 dsh plugin --profile web add github:warm-flame-core/new-project-init   # 或 GitHub
 dsh plugin --profile web add <仓库路径>                            # 或本地文件夹
 ```
