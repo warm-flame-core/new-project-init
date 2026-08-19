@@ -19,3 +19,4 @@ npm-debug.log*
 # 私密文件明文（不入库；*.enc 密文入库）
 _private/*.md
 _private/.secret
+_private/*.secret
