@@ -85,14 +85,15 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 
 参考样例：本体系源自「Vibe Coding 闭环工作流」，在 PTB-IMP 项目（Spring Boot + Vue3）实战验证；文档章节骨架见技能目录 `templates/`（31 个模板文件，全部双部分化：第一部分简化章节递归、第二部分详细规格+示例，附录 C 索引；26 个平台基础 + 27~31 可装配规范模块）。
 
-## 平台适配（v10.7 新增：DSH 深度适配；v10.9 补 Reasonix，跨平台通用）
+## 平台适配（v10.7 新增：DSH 深度适配；v10.9 补 Reasonix；v11.3 补 ZCode，跨平台通用）
 
-> 本 skill 的问询/模板/规则全部**与具体 AI 工具无关**——可在 Claude Code、DeepSeek Harness（DSH）、Reasonix、或其他支持技能机制的 agent 中运行。v10.7 起针对 **DSH**、v10.9 起针对 **Reasonix** 做了深度适配：**不改变任何规则/模板/产出物**，只增加「在对应平台怎么落地」的指引，其他平台照常执行。
+> 本 skill 的问询/模板/规则全部**与具体 AI 工具无关**——可在 Claude Code、DeepSeek Harness（DSH）、Reasonix、ZCode、或其他支持技能机制的 agent 中运行。v10.7 起针对 **DSH**、v10.9 起针对 **Reasonix**、v11.3 起针对 **ZCode** 做了深度适配：**不改变任何规则/模板/产出物**，只增加「在对应平台怎么落地」的指引，其他平台照常执行。
 
 - **DSH 运行时**：先读 `platforms/dsh/adaptation.md`（DSH 能力映射全文）——多 agent 角色用 `subagent`/`subagent_fork`（大规模并行用 `workflow`）落地、问询用 `ask_user_question`、命令实测用 `pwsh`（Windows）、文件操作用 `read`/`write`/`edit`/`glob`/`grep`；产出物保持原名（CLAUDE.md 等），DSH 按需读取。
 - **Reasonix 运行时**：先读 `platforms/reasonix/adaptation.md`（Reasonix 能力映射全文）——多 agent 角色用原生 `task`/`review`/`wait`/`explore` 工具、子代理用 `reasonix subagent`、常驻纪律并入项目 `AGENTS.md`；安装：`~/.reasonix/skills/` junction 或 `reasonix.toml` 的 `[skills] paths` 指向本仓库；社区发布：https://reasonix.io/skills/（表单填仓库 URL）。
 - **其他平台（Claude Code 等）**：照常执行原流程，本适配说明不改变任何规则。
 - **Codex 运行时**：先读 platforms/codex/adaptation.md（Codex 能力映射全文）——多 agent 角色用 spawn_agent/send_input/wait_agent 落地、问询用 equest_user_input、命令实测用 shell_command、文件操作用 shell_command + PowerShell 命令；产出物保持原名（CLAUDE.md 等），Codex 按需读取。
+- **ZCode 运行时**：先读 `platforms/zcode/adaptation.md`（ZCode 能力映射全文）——多 agent 角色用 `Agent` 子代理（独立会话不继承父上下文，prompt 必含 references 必读行）、问询用 `AskUserQuestion`（单次最多 4 题，🔴 单题、🟡 ≤4 题合并）、会话交接用 `ReadSessionContext`（#sess_* 会话读取）、规划讨论用 plan 模式、命令实测用 `Bash`、文件操作用 `Read`/`Write`/`Edit`（Edit 强制 old_string 全局唯一）；产出物保持原名，ZCode 认项目 `AGENTS.md` 常驻纪律；安装：`~/.agents/skills/` junction（**多工具共享根，推荐**——ZCode 与 Claude/Codex/Cursor 等共享同一份）/ `~/.zcode/skills/`（ZCode 专属，与前者二选一）/ 项目 `.zcode/skills/`（团队共享），`.zcode-plugin/plugin.json` 支持插件方式安装。**注**：ZCode 无「任意路径技能根」配置字段（对照 Reasonix `[skills] paths`），技能根是约定目录。
 - **调用方式（DSH）**：用户说「用 new-project-init …」→ agent 用 `skill` 工具加载本技能；或直接输入 `/new-project-init`（DSH 用户显式调用）。
 - **迭代（DSH）**：对 DSH 说「用 new-project-init 迭代」→ 同样触发「skill 迭代大前提」的讨论驱动纪律。
 - **安装（DSH）**：见 `platforms/dsh/adaptation.md`「安装与发现」——**插件安装**（v10.8）：`dsh plugin --profile web add new-project-init`（npm，推荐，免生成构建批准；npm 已恢复发布）/ `github:warm-flame-core/new-project-init`（GitHub，备选）/ 本地文件夹；**本地文件安装**：放 `$DSH_HOME/skills/`（用户级，推荐）或项目 `.dsh/skills/`，或用 `$DSH_HOME/cordis.patch.yml` 的 `skill-filesystem.customSkillDirs` 指向本仓库。
@@ -110,7 +111,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 | `agents/` | **多 agent 行为规定** | 各角色职责与协作（模板见附录 A） |
 | `specs/module-XXX/` | **模块闭环产出** | plan / acceptance / changelog / review / test 五件套 |
 | `platforms/` | **多平台适配参考**（v10.7/v10.9 新增，v10.10 起按平台分目录） | `platforms/reasonix/adaptation.md`（Reasonix）+ `platforms/dsh/adaptation.md`（DSH）+ `platforms/dsh/cordis.patch.yml`（DSH bundle patch）能力映射全文；其他平台运行时可忽略 |
-| `references/` | **skill 深度内容**（v11.0 新增，跨平台强门禁引用） | `references/场景/` 下三文件：`全新-问询.md` / `中途-问询.md` / `存量-问询.md`——各场景的**完整问询题库 + 细化执行流程**；执行对应场景前**必须先读对应文件全文**（见「执行流程·跨平台强门禁」）。Reasonix 自动折叠进 body，DSH/其他平台靠 SKILL.md 硬门禁强制去读 |
+| `references/` | **skill 深度内容**（v11.0 新增，跨平台强门禁引用） | `references/场景/` 下三文件：`全新-问询.md` / `中途-问询.md` / `存量-问询.md`——各场景的**完整问询题库 + 细化执行流程**；执行对应场景前**必须先读对应文件全文**（见「执行流程·跨平台强门禁」）。v11.3 新增 `references/五件套颗粒度标尺.md`（写五件套前必读，同受强门禁约束）。Reasonix 自动折叠进 body，DSH/其他平台靠 SKILL.md 硬门禁强制去读 |
 | `testing/` | **skill 自身验证走查**（迭代者用，使用者可忽略） | 四个场景走查文件（全新/中途/存量/模板），迭代改动后按需跑，见「skill 迭代大前提」第 4 条 |
 
 ## 平台入口规范文件（ISSUE-013，v11.0：正文唯一 + 平台入口薄文件）
@@ -167,7 +168,7 @@ whenToUse: 用户提到「完善/优化项目文档」「补建文档体系」�
 1. **触发条件（满足任一必须写入）**：①开发（新增/修改/删除任何项目文件）②测试（无论成败，记结果与数字）③审查（记结论与遗留项）④git 实质操作：`commit/push/merge/rebase/reset`（记提交号）；**切分支轻量记 activity-log 一行**；`fetch/pull/stash` 不记；⑤纯读不记。
 2. **回答末尾自检（强制三步）**：①动了哪些文件 ②记忆库三件套+logs 是否覆盖 ③缺则补写后再结束。
 3. **新会话入场（强制核对）**：读 project-context → file-index → agent-activity-log → `<入口规范文件>`（映射定名，见「平台入口规范文件」节）；然后跑 `git status` + `git diff --stat` 与 file-index 核对，未知变动先弄清再动手，不臆测。
-4. **logs 细节**：**新建 `memory/logs/<角色>/<当天日期>.md` 前必须复制/读取项目内模板**（`memory/logs/<角色>/YYYY-MM-DD.md` 模板实例 + skill 模板 05），**四表 + 头部 Agent 声明必填**（活动记录/异常事件/交接记录/今日统计 + `> Agent: <角色> | 日期: <日期>`）；无异常/无交接留占位行不省略结构，叙述节只能作可选补充；动作为逐表追加，收尾填「今日统计」；跨天按当天拆分；写错用 `[CORRECT]` 追加更正不删改。
+4. **logs 细节**：**新建 `memory/logs/<角色>/<当天日期>.md` 前必须复制/读取项目内模板**（`memory/logs/<角色>/YYYY-MM-DD.md` 模板实例 + skill 模板 05），**四表 + 头部 Agent 声明必填**（活动记录/异常事件/交接记录/今日统计 + `> Agent: <角色> | 日期: <日期>`）；无异常/无交接留占位行不省略结构，叙述节只能作可选补充；动作为逐表追加，收尾填「今日统计」；跨天按当天拆分；写错用 `[CORRECT]` 追加更正不删改。**多角色 logs（v11.3，ISSUE-021）**：同一 agent 身份扮演多角色时，**每个角色的活动必须记进对应角色的 logs**（如开发兼审查 → `logs/developer/` 与 `logs/reviewer/` 各有当日记录，不能只写主角色）；收尾按「本会话涉及角色清单」逐角色核对，缺则补写。
 5. memory/ 是否入 git：**初始化时问询用户**。
 6. 内容边界：不记密码明文/内网地址/凭据；测试账号可记、密码只记规则。
 7. **临时文件纪律**：临时脚本/文件放 `.tmp-xxx/` 目录（不入 git），命名带用途；**用完即删**，用法记入 logs 避免重造（配合「模块收尾工具提炼检查」T 组规则）。
@@ -284,7 +285,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | .gitignore | 一次性/07 | 编译产物/依赖/密钥/工具/临时/内部文档 + 锁文件不忽略 |
 | README.md | 一次性/08 | 简介/技术栈/快速开始/目录/账号 + 变更记录 |
 | docs/功能说明.md 等 docs 各文档 | 一次性/09-16 | 各自章节全 + 末尾变更记录（人+AI 双受众，尾插） |
-| specs/module-XXX/plan.md 等五件套 | 多次-含文件夹/17-21 | 必填章节核对表（plan 结构 A/B 二选一）+ 签署 + 变更记录尾插 |
+| specs/module-XXX/plan.md 等五件套 | 多次-含文件夹/17-21 | 必填章节核对表（plan 结构 A/B 二选一）+ 签署 + 变更记录尾插 + **颗粒度下限达标 + 标尺/样板已读 + 与 `specs/_样板/` 逐节对标**（v11.3，`references/五件套颗粒度标尺.md`） |
 | file-templates/README.md | 一次性/22 | 命名/通用版式/模板明细/F4 来源 + 变更记录 |
 | tools/README.md | 一次性/23 | 判定标准/工具列表/依赖方向/复用记录 + 变更记录 |
 | memory/project/module-lifecycle-checklist.md | 多次-含文件夹/24 | 阶段 0-6 流程树 + 签署矩阵（唯一出处 CLAUDE.md C 区）+ 收尾核对 |
@@ -365,6 +366,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
    - 存量 → `references/场景/存量-问询.md`（4 轮 + 限制规则 + 冲突消解 A/B/C 流程）
 2. **未读对应文件全文 = 违规**：禁止只凭 SKILL.md 下方骨架直接问询/执行（骨架只是步数概览，不含具体题目与裁决规则）；读完后若上下文仍紧张，按场景内「记忆库/交接」纪律处理。
 3. **同样适用其他非 SKILL.md 资源**：本 SKILL.md 任何地方提到 `references/*`、`templates/*`、`platforms/*`、`docs/CREATION-LOG.md` 等文件，凡涉及**产出/核对/内容判断**的动作前，都必须先读对应文件相应部分，不依赖记忆或推测。
+4. **写/审/改 specs 五件套前必须先读 `references/五件套颗粒度标尺.md` 全文（v11.3，ISSUE-019）**：五件套的产出、审查核对、颗粒度判断，未读标尺 = 违规；项目内已有 `specs/_样板/`（样板固化机制，见「探索与产出」第 3 条）的，还须**先读样板全文再动笔**，收尾与样板逐节颗粒度比对。
 
 | 借口（听起来合理，实为违规） | 现实 |
 |---|---|
@@ -372,6 +374,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | "SKILL.md 里骨架已经很清楚了，直接开问" | 骨架只是步数概览；真正题目/限制/裁决规则在 references 文件里 |
 | "Reasonix 会自动折叠，我在 body 里已经看到了" | 本门禁对所有平台一视同仁；即便 auto-fold 生效也要按规则确认已读全文 |
 | "中途场景和全新大部分一样，看全新那份就行" | 平台适配不同，**必须读本场景自己的那份** references 文件 |
+| "模板结构都对，直接开写五件套" | 结构对 ≠ 颗粒度对；标尺 + 项目样板是「写多细」的唯一依据，未读就写按简略返工（v11.3 第 4 条） |
 
 **红线**：上述借口任一个出现 → 停下读对应 references 文件全文再继续。
 
@@ -425,6 +428,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 2. **逐文档产出**：按附录 C 的模板文件，**先问对应引导题 → 按答案写 → 用户确认 → 下一份**。顺序：README → `<入口规范文件>`（主导平台映射定名，见「平台入口规范文件」节；**其余非主导平台各生成一行薄入口引用它**）→ memory 三件套（+logs + 模板 24 产出物 module-lifecycle-checklist.md）→ agents/（多 agent + 用户要详尽）→ .gitignore → docs/ → specs/ 示例 → file-templates（如有）。**每份产出收尾对照「产出物新建门禁总览」逐节核对**（缺失结构即返工）。
 3. **三类产出模式**（模板双部分化的落地，v10.0 按产出模式分目录 `templates/一次性/`、`templates/多次-单文件/`、`templates/多次-含文件夹/`）：
    - **多次创建且含文件夹**（specs 五件套 17-21、agents 06、checklist 24）：skill 结束时在真实位置生成**特化模板文件夹**（如 `specs/module-XXX-示例/` 内含特化五件套骨架，`-示例` 后缀区分），后续 agent 新建模块 = **复制该文件夹改名**（如 `specs/module-005-xxx/`）再逐文件填写；特化模板文件夹登记进 file-index。
+   - **五件套样板固化（v11.3，ISSUE-019：特化模板文件夹机制的落地升级）**：项目**首个模块五件套签署完成后**，自动复制一份到 `specs/_样板/<模块名>-样板/`（内容 = 按本项目技术栈特化的**完整五件套**，不是骨架）；后续每个新模块写五件套前**硬门禁：先读样板全文**，收尾与样板**逐节颗粒度比对**（对照 `references/五件套颗粒度标尺.md` 下限表），未对标 = 返工。`specs/_样板/` 登记进 file-index + `<入口规范文件>` 信息闭环图；含文件夹多次创建的其他产出（agents/ 等）同机制处理。跨技术栈对齐原理：样板 = 本项目栈的真实颗粒度（零脱敏、不离开项目），换工作区不失效——内嵌模板的脱敏骨架只作通用参考，样板才是主要对齐机制。
    - **多次创建但不含文件夹**（logs 每日 05、handoff 交接 25）：skill 结束时放**单个特化模板文件**（如 `memory/logs/planner/YYYY-MM-DD.md`、`memory/handoff/交接文档-示例.md`），后续 agent **复制该文件**新建；注意 logs 按「跨天拆分强制规则」每日新建（模板 05）。
    - **只创建一次**（CLAUDE.md 01、docs 各文档 08-16、记忆库三件套 02-04、gitignore 07、file-templates/README 22、tools/README 23、DOCUMENT-INDEX 26）：特化即正式文件；**产出时标注「下次修改注意事项」**——更新式文档（改内容+变更记录+署名）vs 追加式文档（只追加不覆盖，memory/ 三件套），新项目阶段文件结构未定时尤其要写清后续怎么改。
 4. **固化与交接**：全部确认后固化；告知维护规则（每模块更新记忆库、末尾自检、入场核对、**模块收尾工具提炼检查按 T6 答案**）；提醒先跑通一个模块再修订；会话交接按 H3/H4 约定（memory/handoff/，看完删或改名归档）。
@@ -439,6 +443,14 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 - **生成期异常处理**：生成文档/规范过程中发现与代码实测或用户答案**不符**（如问询答案与代码现状矛盾、模板结构与项目实际冲突）→ **停下来向用户报告**（现象/依据/建议），不硬套模板继续生成；用户裁决后再继续（借鉴 executing-plans「计划有误 → 停止报告」模式）
 - **模板对齐唯一出处原则（v10.0，反馈：对齐 lead 颗粒度时多处维护只留一处）**：同一规范若在多处维护（如签署矩阵在 CLAUDE.md/checklist/agents、动作标签在 C 区/activity-log/logs）→ **只保留一处（唯一出处），其余位置自引用 + 一句话简介**，禁双份维护漂移；对齐 lead 样板（module-004 等）时同样适用——模板内嵌示例只示范结构，不复制成双份规范。
 - **模板对齐 lead 颗粒度原则（v10.0，反馈：多次迭代无法对齐 lead）**：specs/agents 等「多次创建」模板的详细规格以 **lead 实际产出**（如 module-004 五件套）为颗粒度基准——子任务必须行号级引用 + 现状→修法→理由、验收必须可执行不猜、测试必须环境归因；产出时若明显短于基准（如 plan <5KB）说明写简了，对照模板示例段逐节补。
+- **五件套证据密度（v11.3，ISSUE-019 module-018 颗粒度教训）**：写五件套前**必读 `references/五件套颗粒度标尺.md`**（跨平台强门禁第 4 条）+ 项目 `specs/_样板/`（如有）；每条事实性内容（现状/盘点/计数/行号/权限点）必须有**实测锚**（`文件:行号` / grep 计数 / DDL 引用），**行号与计数写前必须实测确认**——禁止照抄别处 plan 的行号、禁止依赖弱模型产出未经核验（幻实行号实证：菜单项数 29→实为 28、权限码名写反、角色数 10 误写 8）；无证据的行不许写——**证据写满了，详细是副产品**。Reviewer 收尾抽查盘点/Gap 表行号与磁盘一致。
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「项目简单，不用写这么细」 | 下限是可核对门禁；简单模块走结构 B 但证据密度不降（缩减下限项须显式说明理由） |
+  | 「行号大概对就行，写完再核」 | 幻实行号误导后续所有环节（审查/测试按行号定位落空）；写前实测 + Reviewer 抽查 |
+  | 「参照上一个模块的 plan 抄就行」 | 旧模块行号/计数对本模块大概率失效；照抄 = 把幻实写进新 plan |
 - **plan 结构以模板为准（v10.1，perm-004 未按子任务拆分教训）**：新模块 plan 结构按模板 17「必填章节核对表」执行（结构 A=复杂模块 §2 模块拆分独立成节 / 结构 B=简单模块可精简但必写理由），**不就近参考同专项旧模块结构**（旧模块可能偏离模板，如 perm-003 的「需求+技术方案主题分区」即结构 B 未说明的变体）；产出后跑「自检四查」（结构核对最优先）。
 - **plan 零改动声明须 grep 验证（v10.2，perm-004 SecurityConfig 教训）**：plan 写「某文件零改动/不动」前，必须先实际 grep/读该文件确认既有约束（URL 级权限、注解、拦截器、前端角色白名单等）不会挡本模块——防「计划假设与代码现实冲突」（实例：声称 SecurityConfig 零改动，但既有 URL 级权限锁死目标接口，开发中途被迫改）。
 - **plan 新增声明须反查（v10.12，perm-007 双身份建表教训）**：plan/任务清单声明「新建表 / 加字段」前，必须用**目标真实表名/列名**精确 grep **全部**迁移与实体（`sql/V<编号>__*.sql` 全量 V01~当前，**勿只查部分区间**）+ `SHOW COLUMNS`/实体定义核对，确认**确实未建**才写「从零新建」；已建则写「复用/改造（引用迁移号）」——与上一条「零改动须 grep」（perm-004）方向互补：声称不动要查，**声称新建更要反查**。防「误判已建为未建 → 任务清单/plan 写从零建表」（实例：perm-007 只 grep V31~V41 漏 V32，且用 `main_subject` 而非目标表名 `subject_association` 精确查，误判未建）
@@ -448,6 +460,13 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
   |------|------|
   | 「这个表肯定没建过，直接建」 | 声明新建前必须用目标真实表名/列名精确 grep 全量迁移（V01~当前）+ 实体核对；已建就写复用 |
   | 「查过几个迁移文件没看到，应该没有」 | 只查部分区间不算查；漏区间的既有建表（如 V32）会被误判为未建 |
+- **权限白名单三处对齐（v11.3，ISSUE-029 module-020 教训；升级 v10.2「双处对齐」）**：新增角色 / 放开权限的改动，必须**全量盘点三处**——①URL 级（SecurityConfig/网关路由权限）②**Service/Controller 层角色矩阵**（`RoleEnum.X` / `"ROLE".equals(role)` 等白名单判断，按目标角色**全量 grep**）③前端路由/菜单白名单——逐条判定「**操作者放行**（并入新角色）」vs「**target 侧防御**（如禁封管理员的判断，不能并入，保持不变）」，形成盘点矩阵写进 plan §3；只改 URL 级 + 前端 = 菜单开了、后端 Service 层仍 403/空数据（模块级 Blocking，实测 ~30 文件 60+ 处漏并）。模板 17 §3「权限白名单三处对齐」+ 模板 18 对应验收项联动。
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「SecurityConfig 和前端都改了，应该通了」 | 权限校验分散三处；Service 层矩阵不并入 = 接口 403/空数据 |
+  | 「grep 到的判断看着都一样，一起放行」 | 逐条分「操作者放行」vs「target 防御」；防御类判断并入新角色 = 越权漏洞 |
 - **审查修复必须同步 acceptance（v10.12，ISSUE-004 perm-007 教训）**：Reviewer 审查发现问题并**修代码**后，必须**同步核对 acceptance-criteria.md 的对应验收项**——权限点、返回语义等描述更新为与最终实现一致再签 PASS。**Reviewer 签字 = 验收标准已与最终实现逐条一致**，不允许「代码已改、acceptance 还是旧描述」的脱节（Tester 阶段才发现补改 = 违规）。
   - **借口自查**：
 
@@ -455,6 +474,16 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
   |------|------|
   | 「修了代码，验收标准等 Tester 阶段再补」 | 审查修复后必须立即同步 acceptance，Tester 才发现=违规 |
   | 「acceptance 写得差不多，不用逐条对」 | Reviewer 签字=验收标准与最终实现逐条一致，须逐条核对并同步 |
+- **Developer 自测通过后必须触发独立审查（v11.3，ISSUE-020 module-019 教训）**：Developer 自测（构建/单测全绿）**不等于流程完成**——必须触发**独立 Reviewer 审查**（平台子代理/review 工具，见 `platforms/<平台>/adaptation.md` 能力映射；裸子代理 prompt 必含 references 必读行）产 review-report，才能进入测试阶段（模板 24 阶段 3→4 gate 强制）。自审发现不了自己的盲点（实证：自测全绿后独立审查仍抓出 2 阻塞 + 5 建议）。
+  - **借口自查**：
+
+  | 借口 | 现实 |
+  |------|------|
+  | 「自测全绿没问题，不用审了」 | 自测 ≠ 独立审查；开发者盲点只有独立 agent 能抓（ISSUE-020 实证 7 项） |
+  | 「小改动直接进测试吧」 | 阶段 3→4 gate 无豁免条款；跳审查 = 违规， Tester 阶段拦截后仍要退回重走 |
+- **测试账号/步骤基于代码权限矩阵确定（v11.3，ISSUE-022 module-019 教训）**：输出测试步骤（人工测试手册节 / acceptance 验证命令）前，先 grep **前端权限判断**（`v-if`/路由守卫/菜单显隐）+ **后端角色过滤**（URL 级/Service 层/注解），确认「哪些账号能看见并访问目标功能」，**按矩阵选账号**——不凭「admin 肯定能用」经验假设（实证：用平台管理员测「仅企业管理员可见」的按钮，用户找不到按钮白跑一轮测试）。
+- **根因分析先做最小对比验证（v11.3，ISSUE-023 module-019 教训）**：遇到「A 有 bug、B 没有」时，**先 diff A 与 B 的实现差异**（找一个不报错/不乱码的参照物对比）再定位根因——不凭第一个假设连修多轮（实证：文件名乱码凭「中文导致」假设修 3 轮，对比参照物一轮定位）。与模板 21 §4b 系统化调试纪律配套执行。
+- **DDL 设计前确认数据库类型与版本（v11.3，ISSUE-024 module-019 教训）**：涉库模块开工前用 `SELECT VERSION()`（或等效方式）实测共享库/目标库是 MySQL / MariaDB / 其他，并记入 plan——方言差异（如 MariaDB 不支持 `CAST(... AS JSON)`、JSON 类型是 LONGTEXT 别名）在 DDL 设计时确认，不要等共享库执行报错才发现。模板 24 阶段 0 联动。
 - **工具依赖方向为硬规则**：项目代码禁止引用 tools/；固化工具必须通过「删除演练」（删工具后项目照常编译）才允许
   - **借口自查**：
 
@@ -605,6 +634,7 @@ memory/logs/<角色>/YYYY-MM-DD.md   # 每角色一目录、每日期一文件�
 | v11.0 | 2026-08-17 | **骨架化 + 强门禁 + 一批迭代（ISSUE-008~014 + backlog BL-01~05）**：①**骨架化 + 跨平台强门禁**：三场景问询外置 `references/场景/*.md`（完整题库），SKILL.md 改骨架 + 「跨平台强门禁」节（硬规则 3 条 + 借口表 4 行 + 红线「借口出现→停下读对应 references 全文再继续」）②**平台入口规范文件（ISSUE-013）**：新增「平台入口规范文件」节（映射表 + 问询 + 生成逻辑：正文唯一 + 非主导平台薄入口引用；产出物名/模板用 `<入口规范文件>` 占位，docs/specs/memory 不映射）③**规范装配问询**：新增「规范装配问询」节（问询驱动不建重框架；27/28/29 + 30/31 可装配模块逐个问）④**新增模板 27~29**：中文排版规范（ISSUE-010）/ commit 规范（ISSUE-011）/ PR 规范（ISSUE-012），均可装配、产出独立文件或并入 01 ⑤**四段式署名（ISSUE-008）**：SKILL.md 文档维护规则第 2/6 条改四段式 实体人-平台-角色@分支 + 时间精度分级表（HH:mm/日期/文件名），模板署名逐文件改 ⑥**排版规范（ISSUE-010）**：文档维护规则补第 10 条 + 产出物门禁通用规则第 6 条 ⑦**BL-03/04/05**：模板 21 加 §4b 系统化调试纪律、模板 20 加 §7b 对外 PR/§7c 收审查反馈/中文审查输出开关 ⑧**BL-01/02 → 模板 30/31**（git worktrees 并行工作区 / 并行 agent 调度，可装配默认关，附录 C/产出物门禁/装配问询登记，模板数 29→31）⑨**平台适配迭代判据（ISSUE-014）**：AGENTS.md 平台适配开发节补三判据（日常迭代免实测/新增平台必实测/平台机制变需复核），SKILL.md/README 同步 ⑩模板 01 补 B23 中文排版精要 + D 区引用模板 27、B18 改 Conventional Commits 中文版——2026-08-17 一批合并，全部不加密不发布待审阅 | Reasonix（skill 迭代） |
 | v11.1 | 2026-08-19 | **补录 Codex 平台适配（v11.1）+ 上架计划准备（ISSUE-015 起，日期取系统当天 08-19）**：①**补录 Codex 适配**（git 已提交 platforms/codex/adaptation.md + README/SKILL 同步，此前版本表漏记此行，本次补录）：新增 `platforms/codex/adaptation.md`（Codex 能力映射全文：多 agent 角色→spawn_agent/send_input/wait_agent、问询→equest_user_input（`equest` 系文档乱码，实际为 `request_user_input`）、命令实测→shell_command、审批→sandbox_permissions/equire_escalated（同乱码，应为 require_escalated））+ SKILL.md 平台适配节 + README「Codex 适配」节 ②**上架计划准备（ISSUE-015，仅本机本次做）**：编写 `_private/上架-00~04`（上架执行计划书 DSH 交接 + awesome-dsh-plugin 条目 + 描述文案 + DSH 实测验证清单 + 测试记录模板），ISSUES.md 追加 ISSUE-015（恢复 npm 安装渠道并上架 awesome-dsh-plugin）——**不加密不发布**（npm 恢复/DSH 实测/上架 PR 由 DSH 按计划书 decrypt 后独立执行），本次只落盘 _private + 版本记录 | Reasonix（skill 迭代） |
 | v11.2 | 2026-08-19 | **DSH 完全适配复核 + npm 恢复发布 + 插件市场上架（ISSUE-015 由 DSH 执行）**：①**DSH 适配复核**（对照本地官方 deepseek-harness 源码/文档）：`lib/index.js` 与 `@deepseek-ai/dsh-skill` 提供方协议一致（registerProvider 同步工厂 {signal,invalidate}、list/get 返回字段、rank/locator/path/resourceBase/invocation/source/provider）；8 项能力映射核对通过（ask_user_question / subagent·subagent_fork·workflow·goal / approval: ask / customSkillDirs / dsh plugin add / rank 100-550 / profile·$DSH_HOME），命令实测工具名补注（官方通用 `bash`、DSH Desktop 实际 `pwsh`）②**DSH 实测**：`$DSH_HOME/skills/new-project-init` junction 重建指向本仓库（原指向 F:\Software\deepseek-harness\Skill 的死链已清理），watcher 补发现后技能目录渲染出 new-project-init；references/场景/ 三文件、templates/ 31 模板、testing/ 四走查齐备；workspace 外写操作授权机制实测有效 ③**npm 恢复**：README/SKILL/adaptation/AGENTS 四处删除线清除恢复 npm 命令（`dsh plugin --profile web add new-project-init`），package.json 1.0.1→1.1.0 并发布 ④**GitHub 发布**：加 `dsh-plugin` topic + push ⑤**awesome-dsh-plugin 上架 PR**：data/plugins/warm-flame-core__new-project-init.yml + `node scripts/generate-readme.mjs` 重新生成 README——复核/实测/发布记录见 `_private/上架-04` | warm-flame-core-DSH-Developer@main |
+| v11.3 | 2026-09-12 | **五件套颗粒度机制 + 流程 gate 一批（ISSUE-019~026/028~032，module-019/020 实战复盘）+ ZCode 平台适配（三判据②需实测，本平台执行）**：①**五件套颗粒度四层机制（ISSUE-019）**：新增 `references/五件套颗粒度标尺.md`（颗粒度下限表·中档按复杂度上浮 / BDD 场景类型覆盖清单 / 脱敏实例节选 / 30 硬验收加粗词表跨栈替换）+ 跨平台强门禁补第 4 条「写五件套前必读标尺」（+借口行）+「探索与产出」升级**五件套样板固化**（首模块五件套签署后复制 `specs/_样板/<模块名>-样板/`，后续模块先读样板再写、收尾逐节对标）+ 强制规则新增「五件套证据密度」（每条事实须实测锚、行号写前实测禁照抄，+借口表）+ 模板 17~21 各引标尺 + 产出物门禁五件套行补核对项 ②**流程 gate 一批**：ISSUE-020 自测后必须独立审查（强制规则+借口表+模板 24 阶段 2/4 gate）、ISSUE-021 多角色 logs 补写（记忆纪律第 4 条+模板 05）、ISSUE-022 测试账号基于代码权限矩阵（强制规则+模板 14）、ISSUE-023 根因先最小对比验证（强制规则+模板 21 §4b）、ISSUE-024 DDL 前实测数据库类型（强制规则+模板 24 阶段 0）、ISSUE-025 BDD 场景类型覆盖清单含「已有数据→修改→重传」（模板 17 §1+标尺+模板 24 阶段 0）、ISSUE-026 环境预检补工具链版本与项目要求一致性（全新 U10+中途 U-M4） ③**权限白名单三处对齐（ISSUE-029）**：模板 17 §3 双处→三处（URL 级+Service/Controller 层矩阵+前端白名单）+ 盘点矩阵（操作者放行 vs target 防御）+ 模板 18 验收项 + 强制规则+借口表；原记录「模板 01 有该规则」经核实不存在、不改 01（守唯一出处） ④**028/030 平台已知坑**：受控环境「验证+写状态」命令拦截绕过决策路径 + 精确替换「唯一上下文锚」技巧——按平台归属下沉各平台 adaptation.md（zcode 新建含 zcode 版；reasonix 收 ISSUE-028 真实案例 `cmd /c` 子进程隔离；dsh 补通用指引），SKILL.md 不加平台特定内容 ⑤**ZCode 平台适配**：新增 `platforms/zcode/adaptation.md`（加载与调用/能力映射表/2b 子代理上下文档位/产出物定位/安装与发现/受控环境执行已知坑/维护说明）+ 新增 `.zcode-plugin/plugin.json` + SKILL.md/README/AGENTS 登记 + package.json 1.1.0→1.2.0；本会话最小实测（AskUserQuestion 问询 / Agent 子代理 / references 读取 / Edit old_string 唯一性报错）+ `~/.zcode/skills/` junction 发现验证 ⑥**收尾**：.gitignore `_private/*` 全忽略+密文豁免（ISSUE-032：原 `*.md` 规则挡不住子目录明文）；testing 模板/全新走查补条目；ISSUES.md 019~031 关闭、027 标注项目侧落地、018 留 backlog、032 当场关闭 | warm-flame-core-ZCode-Developer@main |
 
 
 

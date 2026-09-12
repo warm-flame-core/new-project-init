@@ -6,6 +6,7 @@
 Thumbs.db
 .idea/
 .vscode/
+.zcode/
 *.swp
 
 # 日志与临时文件
@@ -17,7 +18,7 @@ node_modules/
 npm-debug.log*
 
 # 私密文件明文（不入库；*.enc 密文入库）
-_private/*.md
-_private/*.zip
-_private/.secret
-_private/*.secret
+# v11.3（ISSUE-032）：改用「全忽略 + 密文豁免」——原 `_private/*.md` 等只匹配直接子文件，
+# 挡不住子目录（如 _private/module-018-五件套样板/*.md 解压明文），有明文入库风险
+_private/*
+!_private/*.enc

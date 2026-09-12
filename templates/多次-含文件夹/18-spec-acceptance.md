@@ -4,6 +4,7 @@
 
 > 模板用途：**每模块一份**的「多次创建文件」，Planner 产出、Tester 逐条执行并签署。
 > 标准基准：以 PTB-IMP 项目 **module-004（lead 样板，15KB）** 为质量基准——验收项必须可执行、可验证，验收结论必须含实测记录。
+> 📏 **颗粒度标尺（v11.3，ISSUE-019）**：写本产出前**必读 `references/五件套颗粒度标尺.md` 全文**（跨平台强门禁第 4 条）+ 项目 `specs/_样板/`（如有，先读样板再动笔）——A/B/C 组齐且每组 ≥3 项、每项 Given-When-Then + 预期，未达标 = 违规。
 
 ---
 
@@ -53,6 +54,7 @@ specs/module-XXX/acceptance-criteria.md
 ```
 - 每条验收项要**可执行**——Tester 能照此操作并判断过/不过，禁止模糊表述。
 - **单测清单预列（v10.12，ISSUE-007）**：§1 每节可选加一行「**对应单测用例**」（用例名 + 断言），或标题下明确写「**单测 = 本 acceptance 各节转测试用例**」——让 Tester 的单测覆盖**来源明确、预先列出**，避免边写边补导致覆盖不完整（perm-007 教训：acceptance 无单测清单，Tester 边写边补 10 用例）。
+- **权限盘点矩阵覆盖三处（v11.3，ISSUE-029）**：本模块涉及「新增角色 / 放开权限」时，§1 必须含验收项「**权限盘点矩阵覆盖三处（URL 级 / Service/Controller 层角色矩阵 / 前端路由菜单白名单）且抽查一致**」——plan §3 的盘点矩阵逐条在此验收（操作者放行类已并入、target 防御类保持不变）。
 
 ### §2 非功能验收
 - **2.1 安全验收**：认证/权限/越权/敏感数据（按 F2/F3 问询答案特化）。
@@ -129,3 +131,4 @@ specs/module-XXX/acceptance-criteria.md
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行追加底部（有人看）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
 | 2026-08-17 | v10.12：§1 补「单测清单预列」（每节可选加「对应单测用例」或标题下注明「单测 = 本 acceptance 各节转测试用例」，避免 Tester 边写边补覆盖不完整）——perm-007 Tester 边写单测边补（ISSUE-007），2026-08-17 讨论批准 | Reasonix（skill 迭代） |
 | 2026-08-17 | v11.0：签署/署名按四段式（`<实体人>-<平台>-<Tester>@<分支>`，无 git 省略 `@分支`；如 warm-flame-core-Reasonix-Tester@feat/xxx），替换三元组——与 SKILL.md 文档维护规则第 6 条一致（ISSUE-008） | Reasonix（skill 迭代） |
+| 2026-09-12 | v11.3：头部补「📏 颗粒度标尺」必读行（references/五件套颗粒度标尺.md 强门禁 + specs/_样板/ 对标，ISSUE-019）；§1 补「权限盘点矩阵覆盖三处」验收项（URL 级/Service 层/前端三处抽查一致，ISSUE-029） | warm-flame-core-ZCode-Developer@main |

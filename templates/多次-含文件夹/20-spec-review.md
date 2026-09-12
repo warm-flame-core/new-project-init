@@ -4,6 +4,7 @@
 
 > 模板用途：**每模块一份（可多轮）**的「多次创建文件」，Reviewer 审查后产出；不通过则返回 Developer 修复后复审，每轮追加一节。
 > 标准基准：以 PTB-IMP 项目 **module-004（lead 样板，15.6KB）** 为质量基准——结论先行、问题分级、**验收标准逐条核对表**、实测证据。
+> 📏 **颗粒度标尺（v11.3，ISSUE-019）**：审查前**必读 `references/五件套颗粒度标尺.md` 全文**（跨平台强门禁第 4 条）+ 项目 `specs/_样板/`（如有）——验收逐条核对不抽样、每问题四要素齐、实测记录 ≥2 条，另抽查 plan 盘点/Gap 表行号与磁盘一致（证据密度规则），未达标 = 退回。
 
 ---
 
@@ -143,3 +144,4 @@ specs/module-XXX/review-report.md
 | 2026-08-17 | v10.12：§3 加「验收标准 = 最终实现」强制项（审查修代码后必修同步 acceptance 验收项描述，Reviewer 签字=验收标准与最终实现逐条一致）——perm-007 审查修复后 acceptance 权限点描述滞后（ISSUE-004），2026-08-17 讨论批准 | Reasonix（skill 迭代） |
 | 2026-08-17 | v11.0：§7 后新增 7b「对外 PR 审查」（ISSUE-012：验收=最终实现/问题分级/真人确认，走 PR 时）+ 7c「收到审查反馈处理」（BL-04：先逐条核实再改，源于 superpowers-receiving-code-review） | Reasonix（skill 迭代） |
 | 2026-08-17 | v11.0：新增可装配开关「审查输出语言即 BL-05」（装配问询开启时 review-report 用中文输出）；§1 审查人署名改四段式（实体人-平台-角色@分支） | Reasonix（skill 迭代） |
+| 2026-09-12 | v11.3：头部补「📏 颗粒度标尺」必读行（references/五件套颗粒度标尺.md 强门禁 + specs/_样板/ 对标 + 抽查 plan 盘点行号与磁盘一致，ISSUE-019） | warm-flame-core-ZCode-Developer@main |

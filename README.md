@@ -4,7 +4,7 @@
 
 **用大白话说**：你项目里有一堆文档要**建、要整理、要立规矩**，还要让 AI 以后**按规矩帮你干活**——用这个 skill，AI 会先问清楚你的项目情况（技术栈、团队、习惯……问到你烦为止，答不上来它会给默认），再按你的答案生成一套规范文件（CLAUDE.md、AI 记忆库、docs 文档、模块流程等），以后**每个 AI 进场都知道先读什么、怎么干活、怎么留记录**。**重点场景是「存量完善」：项目跑了一半、文档已经有点乱的**——不乱动你的代码，只把文档和流程理顺（只记录不重构）。
 
-A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **v11.0：骨架化总入口 + references 题库外置 + 跨平台强门禁 + 平台入口映射（正文唯一 + 薄入口）**; **adapted for DeepSeek Harness (DSH) and Reasonix**, also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
+A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **v11.3：五件套颗粒度标尺机制 + 流程 gate 一批 + ZCode 适配**; **adapted for DeepSeek Harness (DSH), Reasonix and ZCode**, also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
 
 [![作者 warm-flame-core](https://img.shields.io/badge/👤_作者-warm--flame--core-blue)](https://github.com/warm-flame-core)
 [![DSH 适配](https://img.shields.io/badge/DeepSeek_Harness-深度适配-4F46E5)](https://github.com/deepseek-ai/deepseek-harness)
@@ -228,6 +228,51 @@ paths = ["/path/to/new-project-init"]
 迭代到**平台适配**时，用三判据决定是否回对应平台实测：**①日常迭代（仅改平台无关内容）→ 免实测；②新增平台适配 → 必到该平台实测能力映射；③平台机制有变（DSH 升级 / Reasonix 工具集调整影响已登记映射）→ 回平台复核并同步 platforms/<平台>/adaptation.md。**完整判据见 AGENTS.md「平台适配开发」节——本 skill 的规则/模板/产出物始终平台无关，判据只作用于"平台落地指引是否需要复核"。
 
 ---
+
+## 🧩 ZCode 适配
+
+本 skill **v11.3 起深度适配 ZCode**（ZCode coding harness）——**规则/模板/产出物完全跨平台**，与 DSH/Reasonix/Codex/Claude Code 适配互不冲突，本适配只是「在 ZCode 里怎么落地」的指引。完整映射见 `platforms/zcode/adaptation.md`。
+
+### 安装（ZCode）
+
+**方式一：多工具共享根 junction（推荐，Windows；ZCode 与 Claude/Codex/Cursor 等共享同一份）**
+
+```powershell
+New-Item -ItemType Directory -Path "$env:USERPROFILE\.agents\skills" -Force | Out-Null
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\new-project-init" -Target <本仓库路径>
+```
+
+> **优点**：改动自动同步、不占额外空间，且**内容实体仍在仓库**（单一来源）；`~/.agents/skills` 是 ZCode 官方「跨工具共享」根。装完**新开一个 ZCode 会话**确认技能出现在技能索引、`/new-project-init` 能触发。**注意**：若同时存在 `~/.zcode/skills/new-project-init`，`.zcode` 会遮蔽 `.agents`（同级 .zcode 先扫）——同一技能只保留一处 junction。
+
+**方式二：ZCode 专属根**：放进 `~/.zcode/skills/new-project-init/`（仅 ZCode 可见，与方式一互斥）。
+
+**方式三：项目级（团队共享）**：放进 `<项目>/.zcode/skills/` 或 `<项目>/.agents/skills/`（随仓库分发，从当前目录向上逐级生效）。
+
+**方式四：插件清单（实验路径）**：仓库根含 `.zcode-plugin/plugin.json`，可在 ZCode「Settings → Plugin Management → Discover → +」尝试以 GitHub 仓库/本地目录添加为插件源；未做完整装机实测，失败请回退方式一。**注**：ZCode 无「任意路径技能根」配置字段（对照 Reasonix 的 `[skills] paths`），多工具共享走 `~/.agents/skills`。
+
+### 调用（ZCode）
+
+- 对 ZCode 说「**用 new-project-init 完善文档** / **初始化项目** / **补建文档体系**」
+- 或直接输入「**/new-project-init**」（ZCode 用户显式调用）
+
+### ZCode 落地映射（skill 概念 → ZCode 工具）
+
+| skill 概念 | ZCode 落地 |
+|---|---|
+| 多 agent 角色（Planner/Developer/Reviewer/Tester） | `Agent` 子代理（独立会话不继承，prompt 含 references 必读行）；`agents/<role>.md` 作模板 |
+| 独立审查（ISSUE-020 强制） | `Agent` 派独立审查子代理产 review-report，与开发主代理隔离 |
+| 问询（🔴 一次一个 / 🟡 批量） | `AskUserQuestion`（结构化选项，单次最多 4 题） |
+| 会话上下文管理 | `ReadSessionContext`（#sess_* 读取）+ memory/handoff/ 交接文档 |
+| 规划/迭代讨论 | plan 模式（EnterPlanMode/ExitPlanMode） |
+| 命令实测（构建/测试，禁止猜） | `Bash`（Windows 下 Git Bash/pwsh，长任务后台运行） |
+| 常驻纪律 | 项目 `AGENTS.md`（ZCode 每次会话自动注入） |
+
+### 平台适配迭代判据（v11.0，ISSUE-014）
+
+迭代到**平台适配**时，用三判据决定是否回对应平台实测：**①日常迭代（仅改平台无关内容）→ 免实测；②新增平台适配 → 必到该平台实测能力映射；③平台机制有变（DSH 升级 / Reasonix 工具集调整影响已登记映射）→ 回平台复核并同步 `platforms/<平台>/adaptation.md`。**完整判据见 `AGENTS.md`「平台适配开发」节——本 skill 的规则/模板/产出物始终平台无关，判据只作用于"平台落地指引是否需要复核"。
+
+---
+
 ## ✨ 核心特性
 
 - **三种场景三分支**：存量完善（4 轮 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查，**核心场景**）/ 中途加入（7 轮，先探索 git/目录/规范）/ 全新项目（11 轮问询）
@@ -282,6 +327,8 @@ new-project-init/
 ├── platforms/                  # 多平台适配，按平台分目录（v10.10 起）
 │   ├── reasonix/adaptation.md  # Reasonix 能力映射全文
 │   ├── dsh/adaptation.md       # DSH 能力映射全文
+│   ├── codex/adaptation.md     # Codex 能力映射全文（v11.1）
+│   ├── zcode/adaptation.md     # ZCode 能力映射全文（v11.3）
 │   └── dsh/cordis.patch.yml    # DSH bundle patch（package.json 的 dsh.bundle 指向）
 ├── docs/
 │   └── CREATION-LOG.md         # 完整版本演进历史（v3 → v11.0）
@@ -292,6 +339,7 @@ new-project-init/
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
 │   └── 多次-含文件夹/          # 复制整个特化模板文件夹新建（specs 五件套 / agents / checklist）
 ├── testing/                    # 四个验证走查（全新/中途/存量/模板）——skill 迭代者用
+├── .zcode-plugin/plugin.json   # ZCode 插件清单（v11.3，支持插件方式安装）
 └── _private/                   # 私密文件（明文不入库；*.enc AES-GCM 密文入库，仅维护者解密）
 ```
 
@@ -369,7 +417,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 <img src="https://github.com/warm-flame-core.png" width="48" height="48" alt="warm-flame-core" align="left" style="border-radius:8px;margin-right:12px">
 
 - 👤 **warm-flame-core** — [github.com/warm-flame-core](https://github.com/warm-flame-core) · [gitee.com/warm-flame-core](https://gitee.com/warm-flame-core)
-- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享，v10.7 起深度适配 DeepSeek Harness（DSH），v10.9 起深度适配 Reasonix
+- 本 skill 在 PTB-IMP 项目（Spring Boot + Vue3）实战中迭代沉淀，v10.1 起可对外分享，v10.7 起深度适配 DeepSeek Harness（DSH），v10.9 起深度适配 Reasonix，v11.1 起适配 Codex，v11.3 起深度适配 ZCode
 
 <br clear="both">
 
@@ -385,6 +433,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-09-12 | v11.3：**五件套颗粒度机制 + 流程 gate 一批 + ZCode 适配**——新增 `references/五件套颗粒度标尺.md`（颗粒度下限表/BDD 场景类型覆盖清单/脱敏实例/30 硬验收词表）+ SKILL.md 强门禁第 4 条、样板固化机制、强制规则新增（五件套证据密度/独立审查/测试账号基于权限矩阵/最小对比验证/DDL 前实测库类型/权限白名单三处对齐）；模板 17~21/24/05/14 + references 问询 U10/U-M4 同步；新增 `platforms/zcode/adaptation.md` + `.zcode-plugin/plugin.json`，README 新增「ZCode 适配」节并补作者栏/英文摘要/目录树（含补登 Codex）；package.json 1.1.0→1.2.0（description/keywords 补 ZCode）；ISSUES 019~026/028~032 关闭 | warm-flame-core-ZCode-Developer@main |
 | 2026-08-19 | v11.2：DSH 完全适配复核 + npm 恢复发布 + 插件市场上架——README「DSH 安装」节删除线清除，恢复 npm 命令 `dsh plugin --profile web add new-project-init`（推荐，免生成构建批准；GitHub 备选）；package.json 升 1.1.0 并发布 npm；GitHub 加 `dsh-plugin` topic + push；awesome-dsh-plugin 上架 PR（条目 YAML + 重新生成 README）；DSH 复核/实测/发布记录见 `_private/上架-04` | warm-flame-core-DSH-Developer@main |
 | 2026-08-19 | v11.1：补录 Codex 平台适配到版本表（自身已在 README 有「Codex 适配」节）；本次为「上架计划准备」——用户要求恢复 npm 安装渠道并上架 awesome-dsh-plugin 插件市场，计划书完整写入 `_private/上架-00~04`（执行计划 DSH 交接 / awesome-dsh-plugin 条目 / 描述文案 / DSH 实测清单 / 测试记录模板），ISSUES 记 ISSUE-015；**npm 恢复发布 / DSH 实测 / 上架 PR 由后续 DSH 解密按计划书独立执行**，本次只落盘 + 版本记录，日期取系统当天 | Reasonix（skill 迭代） |
 | 2026-08-18 | v11.0（README 对齐 + 推荐，日期取系统当天 08-18）：README 全量对齐 v11.0 大改——模板数 26→31（27~31 可装配）、目录结构补 references/ 与 31 模板/一次性 22 个、CREATION-LOG 版本 v11.0、存量完善定位补平台入口映射（CLAUDE.md/AGENTS.md 由主导平台定名）；新增「同类工具与推荐（superpowers 生态）」小节（原生态 obra/superpowers + 中文版 superpowers-zh + Reasonix 移植 superpowers-reasonix，注明原生版对存量完善适配不佳、本 skill 是差异化补充；其他平台移植未能联网核实、未编造仓库名） | Reasonix（skill 迭代） |

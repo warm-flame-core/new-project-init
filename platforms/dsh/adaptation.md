@@ -1,6 +1,7 @@
 # new-project-init · DSH（DeepSeek Harness）适配说明
 
 > 📍 变更记录（纯 AI 看，头插）：
+> `2026-09-12 | 新增 5b「受控环境执行已知坑（v11.3，ISSUE-028/030 通用指引）」：构建/测试命令被工具策略/审批拦截「验证+写状态」混合时的通用决策路径 + 精确替换遇重复文本的「唯一上下文锚」技巧（平台相关，随 zcode/reasonix 适配一并沉淀；DSH 审批机制下同样适用） | warm-flame-core-ZCode-Developer@main`
 > `2026-08-19 | npm 恢复发布（ISSUE-015 执行）：插件安装段补注「npm 已恢复发布 v1.1.0（推荐，免生成构建批准）」，README/SKILL/AGENTS 同步恢复 npm 渠道 | warm-flame-core-DSH-Developer@main`
 > `2026-08-19 | DSH 适配复核（上架前，ISSUE-015）：命令实测行补注——官方 tool-catalog 通用注册名为 bash（@deepseek-ai/dsh-tool-bash），官方 shell 能力含 local/pwsh providers（deepseek-harness AGENTS.md），DSH Desktop 实际注入 pwsh；其余能力映射 8 项核对通过（ask_user_question / subagent·subagent_fork·workflow·goal / approval: ask / customSkillDirs / dsh plugin add / rank 100-550 / profile·$DSH_HOME 约定），lib/index.js 与 @deepseek-ai/dsh-skill 协议一致 | DSH（适配复核，warm-flame-core-DSH-Developer@main）`
 > `2026-08-17 | 新增 2b「子代理上下文继承档位（v11.0）」：subagent（后台派发不继承）/subagent_fork（继承）/workflow（继承+prompt 脚本）/goal（常驻），说明各档对「跨平台强门禁 + references 题库可见性」的影响与所需动作；新增「异常提示」段（发现流程被精简/题目缺失 → 停下上报父代理或提醒用户，不凭残缺上下文做）；产出物定位与入场核对两处写死 CLAUDE.md 对齐 v11.0 平台入口映射（正文唯一名由主导平台决定 + 非主导薄入口） | Reasonix（skill 迭代）`
@@ -102,6 +103,16 @@ dsh plugin --profile web add <仓库路径>                            # 或本�
 > 注：该宿主层行在 Web/桌面 profile 被禁用（preset 层接管），因此 customSkillDirs 主要对 TUI/headless 等 profile 生效；GUI 请用 `$DSH_HOME/skills` 方案。两者可并存，互不冲突。
 
 - **验证**：`dsh --profile <name> --dump-config` 应看到 `skill-filesystem` 行的 `customSkillDirs`；技能目录在会话首个步骤渲染（新会话必见；运行中的会话由 watcher 轮询补发现，缺失根每 100ms 探测一段路径）。
+
+## 5b. 受控环境执行已知坑（v11.3，ISSUE-028/030 通用指引）
+
+> DSH 的 `approval: ask` + workspace 沙箱下，「验证 + 写状态」混合型命令（构建/测试：既落盘产物/报告又验结果）可能触发审批或被拦。**通用决策路径（不硬编码具体构建工具）**：
+
+1. **先区分两类动作**：写状态准备（build/install 产物、依赖安装、测试报告落盘）vs 只读验证（读结果文件/报告/日志）——能拆则拆，写状态部分一次获批、验证部分只读；
+2. 拆不开（测试框架写 target 与断言一体）：把环境变量赋值放进**子进程**隔离主 shell 状态——Windows 下 `cmd /c "set VAR=xxx&&<build/test 命令>"`（Reasonix 同型拦截实测有效，见 `platforms/reasonix/adaptation.md` 5b-1）；
+3. 仍被拦/被拒：**停下向用户说明**（哪条命令、为什么需要写权限、影响哪个目录），获批准再执行——被拒 = 用户否决，不反复原样重试。
+
+**精确替换遇「多处相同文本」**（ISSUE-030）：编辑工具 old_string 不唯一即报错时，**扩大锚到该处独有的相邻上下文**（分支判断行/函数边界/文件头）直到唯一命中；禁止碰运气的短锚（误改错处静默无报错）；多处同款文本逐处分别锚定，或先在源分支改好再整体复制。
 
 ## 6. 维护说明
 

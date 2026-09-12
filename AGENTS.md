@@ -23,6 +23,8 @@ new-project-init/
 ├── platforms/                # ★ 多平台适配，按平台分目录
 │   ├── reasonix/adaptation.md        # Reasonix 能力映射全文
 │   ├── dsh/adaptation.md             # DSH 能力映射全文
+│   ├── codex/adaptation.md           # Codex 能力映射全文（v11.1）
+│   ├── zcode/adaptation.md           # ZCode 能力映射全文（v11.3）
 │   └── dsh/cordis.patch.yml          # DSH bundle patch（npm/GitHub 安装均用）
 ├── docs/
 │   └── CREATION-LOG.md       # 完整版本演进历史
@@ -65,7 +67,7 @@ git push origin main
 
 ## 发布
 
-- **npm**：已恢复发布（v11.2 起重新维护，当前版本 1.1.0；安装：`dsh plugin --profile web add new-project-init`，免生成构建批准）。发布前先 `npm whoami --registry https://registry.npmjs.org` 确认登录，再 `npm publish --registry https://registry.npmjs.org`（publish 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
+- **npm**：已恢复发布（v11.2 起重新维护，当前版本 1.2.0；安装：`dsh plugin --profile web add new-project-init`，免生成构建批准）。发布前先 `npm whoami --registry https://registry.npmjs.org` 确认登录，再 `npm publish --registry https://registry.npmjs.org`（publish 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
 - **GitHub（push 即发布）**：安装方式在 README 中说明（DSH：`dsh plugin --profile web add new-project-init` / `github:warm-flame-core/new-project-init` 或 customSkillDirs 指向；Reasonix：`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`；Claude Code：技能目录）。
 - 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致）。
 
@@ -80,8 +82,8 @@ git push origin main
 ## 平台适配开发（新增平台）
 
 - 平台无关内容进 `SKILL.md` / `templates/` / `testing/`（唯一出处）。
-- 平台特定映射写 `platforms/<平台>/adaptation.md`（如 `platforms/reasonix/`、`platforms/dsh/`），并在 SKILL.md「平台适配」节 + README 各平台节登记。
-- 该平台的适配最好在该平台的电脑/工作区实测开发（如 Reasonix 适配在 Reasonix 环境、DSH 适配在 DSH 环境）。
+- 平台特定映射写 `platforms/<平台>/adaptation.md`（如 `platforms/reasonix/`、`platforms/dsh/`、`platforms/zcode/`），并在 SKILL.md「平台适配」节 + README 各平台节登记。
+- 该平台的适配最好在该平台的电脑/工作区实测开发（如 Reasonix 适配在 Reasonix 环境、DSH 适配在 DSH 环境、ZCode 适配在 ZCode 环境）。
 
 > **三判据（ISSUE-014，v11.0：判断本次迭代要不要到对应平台实测）**：
 > 1. **日常迭代（仅平台无关内容）→ 免实测**：只改 SKILL.md / templates / references / testing 这类跨平台通用内容、不触碰任何平台能力映射时，无需到各平台实测，正常迭代即可。
