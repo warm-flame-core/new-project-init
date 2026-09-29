@@ -25,25 +25,25 @@ README.md
 ### 项目简介
 - 一句话描述 + 给谁用 + 3-5 条核心功能（对应用户能感知的功能，不是技术点）。
 - **示例**：
-```markdown
+````markdown
 # 高校企业对接管理平台
 
 学校、培训机构、企业、学生之间的委托培训、实习、就业对接平台；含资质审核、合同管理、学生管理、实习就业、审计日志等模块。
-```
+````
 
 ### 技术栈
 - 一行式列出前后端选型（版本可省，详版在 CLAUDE.md）。
 - **示例**：
-```markdown
+````markdown
 ## 技术栈
 - 后端：Spring Boot 3 + MyBatis-Plus + MySQL + Redis + JWT
 - 前端：Vue 3 + TypeScript + Element Plus + Vite
-```
+````
 
 ### 快速开始
 - 前置要求（JDK/Node 版本）→ 安装依赖 → 启动命令 → 访问地址。**命令必须实测**（与 CLAUDE.md 常用命令一致）。
 - **示例**：
-```markdown
+````markdown
 ## 快速开始
 前置：JDK 17、Node 18+、MySQL、Redis
 ```bash
@@ -51,27 +51,27 @@ cd backend && mvn spring-boot:run   # 后端，http://localhost:8080
 cd frontend && npm install && npm run dev   # 前端，http://localhost:3000
 ```
 数据库初始化：按顺序执行 sql/schema.sql → sql/V2__*.sql …（见 CLAUDE.md 常用命令）
-```
+````
 
 ### 目录结构
 - 顶层目录一句话说明（backend/frontend/docs/sql/specs）。
 - **示例**：
-```markdown
+````markdown
 ## 目录结构
 - backend/  后端工程（Spring Boot）
 - frontend/ 前端工程（Vue 3）
 - docs/     需求与设计文档
 - sql/      数据库建表与迁移脚本
 - specs/    模块开发规格（五件套）
-```
+````
 
 ### 默认账号
 - 演示账号：账号可写，**密码只写规则或占位**（如 `admin / 见测试手册`），不写明文密码。
 - **示例**：
-```markdown
+````markdown
 ## 默认账号
 平台管理员：platform_admin / 密码见 docs/测试手册「通用准备」章节
-```
+````
 
 ## 变更记录
 > 修改本文档后必须在此追加一行（见头部维护声明）。
@@ -82,3 +82,4 @@ cd frontend && npm install && npm run dev   # 前端，http://localhost:3000
 | YYYY-MM-DD HH:mm | 初始创建 | <实体人>-<平台>-<角色>@<分支> |
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行追加底部（有人看）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
 | 2026-08-17 | v11.0：变更记录署名示例由三元组 `<人>-<角色>-<实例>` 改为四段式 `<实体人>-<平台>-<角色>@<分支>`（无 git 省略 `@分支`），与 SKILL.md 文档维护规则第 6 条一致（ISSUE-008） | Reasonix（skill 迭代） |
+| 2026-09-30 | v11.4：外层 ```markdown 围栏改 **4 反引号**（修「块内再嵌 ```bash 等围栏」导致的 GitHub 渲染错乱；**正文内容未改**，仅围栏字符） | warm-flame-core-DSH-Developer@main |
