@@ -9,6 +9,11 @@
 #   pwsh -File scripts/secret.ps1 -Action decrypt -Path _private/ISSUES.md.enc
 #   pwsh -File scripts/secret.ps1 -Action decrypt -Path _private -Recurse   # 递归还原
 #   pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -Passphrase "你的口令"
+#   pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -Force   # 强制全量重加密（换口令/疑损坏时）
+#
+# 增量加密（v11.4）：`encrypt` 默认**跳过 .enc 不早于明文的文件**——salt/nonce 随机导致同样明文每次
+#   密文都不同，全量重写会让每次提交都显示所有 .enc 变更（历史教训见 CREATION-LOG 1d7a8fd）。
+#   需要全量重写时加 -Force。
 #
 # 口令来源（优先级从高到低）：
 #   1) -Passphrase 参数
@@ -23,7 +28,8 @@ param(
     [Parameter(Mandatory = $true)][ValidateSet("encrypt", "decrypt")][string]$Action,
     [Parameter(Mandatory = $true)][string]$Path,
     [string]$Passphrase = "",
-    [switch]$Recurse
+    [switch]$Recurse,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -103,7 +109,20 @@ $pass = Get-Secret
 Write-Host "== secret.ps1 - $Action ($($targets.Count) 个文件) =="
 
 if ($Action -eq "encrypt") {
-    foreach ($f in $targets) { Encrypt-File $f $pass }
+    # 跳过已是最新的（.enc 不早于明文）——避免每次全量重加密产生无意义 diff
+    # （salt/nonce 随机 → 同样明文每次密文都不同，全量重写会让每次提交都显示所有 .enc 变更）
+    # 用 -Force 强制全量重加密（换口令、怀疑密文损坏时用）
+    $skipped = 0
+    foreach ($f in $targets) {
+        $enc = "$f.enc"
+        if (-not $Force -and (Test-Path $enc) -and ((Get-Item $enc).LastWriteTime -ge (Get-Item $f).LastWriteTime)) {
+            Write-Host "  skip   : $f （密文已是最新；-Force 可强制重加密）"
+            $skipped++
+            continue
+        }
+        Encrypt-File $f $pass
+    }
+    if ($skipped -gt 0) { Write-Host "  （跳过 $skipped 个已最新的文件）" }
 } else {
     foreach ($f in $targets) { Decrypt-File $f $pass }
 }
