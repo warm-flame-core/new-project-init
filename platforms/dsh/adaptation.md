@@ -6,6 +6,7 @@
 > `2026-08-19 | npm 恢复发布（ISSUE-015 执行）：插件安装段补注「npm 已恢复发布 v1.1.0（推荐，免生成构建批准）」，README/SKILL/AGENTS 同步恢复 npm 渠道 | warm-flame-core-DSH-Developer@main`
 > `2026-08-19 | DSH 适配复核（上架前，ISSUE-015）：命令实测行补注——官方 tool-catalog 通用注册名为 bash（@deepseek-ai/dsh-tool-bash），官方 shell 能力含 local/pwsh providers（deepseek-harness AGENTS.md），DSH Desktop 实际注入 pwsh；其余能力映射 8 项核对通过（ask_user_question / subagent·subagent_fork·workflow·goal / approval: ask / customSkillDirs / dsh plugin add / rank 100-550 / profile·$DSH_HOME 约定），lib/index.js 与 @deepseek-ai/dsh-skill 协议一致 | DSH（适配复核，warm-flame-core-DSH-Developer@main）`
 > `2026-08-17 | 新增 2b「子代理上下文继承档位（v11.0）」：subagent（后台派发不继承）/subagent_fork（继承）/workflow（继承+prompt 脚本）/goal（常驻），说明各档对「跨平台强门禁 + references 题库可见性」的影响与所需动作；新增「异常提示」段（发现流程被精简/题目缺失 → 停下上报父代理或提醒用户，不凭残缺上下文做）；产出物定位与入场核对两处写死 CLAUDE.md 对齐 v11.0 平台入口映射（正文唯一名由主导平台决定 + 非主导薄入口） | Reasonix（skill 迭代）`
+> ⚠️ **上一条（2026-08-17）中「workflow（继承+prompt 脚本）」有误**——v11.4 对照 DSH 0.2.0-rc.2 源码更正为**不继承**（`workflow-ptc` 的 provider 默认 `spawn`、`startChild` 不传 seed）。历史行文字保留不改，以本文件 2b 表现文为准。
 > `2026-08-16 | 新增：插件安装方式（npm/GitHub/本地文件夹，v10.8 打包为 DSH 插件包） | DSH 适配（agent）`
 > `2026-08-16 | 新增：DSH 适配说明（v10.7） | DSH 适配（agent）`
 

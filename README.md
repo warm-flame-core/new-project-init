@@ -301,7 +301,7 @@ cmd /c mklink /J "%USERPROFILE%\.workbuddy\skills\new-project-init" "<本仓库�
 | 命令实测（构建/测试，禁止猜） | `PowerShell` / `Bash` |
 | 常驻纪律 | 项目 `AGENTS.md`（经 asar 探测确认认 `AGENTS.md`；**自动注入时机待实测**） |
 
-> ⚠️ **本平台适配按「三判据」②属「新增平台适配」，会话级实测尚未跑完**——完整映射与 8 条待实测清单见 [`platforms/workbuddy/adaptation.md`](platforms/workbuddy/adaptation.md)，文件内逐项标注了【实测】/【推断】/【待实测】。
+> ⚠️ **本平台适配按「三判据」②属「新增平台适配」，会话级实测尚未跑完**——完整映射与 **12 条待实测清单**见 [`platforms/workbuddy/adaptation.md`](platforms/workbuddy/adaptation.md)，文件内逐项标注了【实测】/【推断】/【待实测】。
 
 ---
 

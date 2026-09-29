@@ -36,7 +36,7 @@ agents/<角色>.md
   - **禁止**：猜测硬做、默默绕过阻塞、把问题留到交接才说
 - **协作协议（交接契约）**：与 Planner/Developer/Reviewer/Tester/team-lead 的交接协议——**交接带什么**（产出文档 + 状态 + 遗留项）、**接收方第一件事**（读什么核对什么，如 Developer 入场核对 plan 审批记录）；跨会话交接引用模板 25 交接文档（§1 签署状态清单必填）；**产出文档/签署处署名用四段式 `<实体人>-<平台>-<角色>@<分支>`（无 git 省略 `@分支`；如 warm-flame-core-Reasonix-Developer@feat/xxx），无法确认 agent 身份时先询问用户（组员自写 agents 尤其要确认）**。
   - **冲突循环引用（不复制，只引用）**：Reviewer 退回 Developer → 模板 24 阶段 3（实现缺陷退修 / 需求偏差先回用户）；Tester 发现超验收范围行为 → 模板 21 §5.5；签署责任矩阵 → `<AI协作规范文件>`（模板 32）
-  - **跨平台兜底：子代理上下文（v11.0 强制，接 SKILL.md「跨平台强门禁」）**：本角色若由**后台派发、不继承父上下文的子代理**执行（Reasonix `task`/`subagent`、DSH `subagent`，见 `platforms/<平台>/adaptation.md` 档位表），**入场必须先 `read` 对应场景的 `references/场景/<全新|中途|存量>-问询.md` 全文**（以及 SKILL.md 相关规则）再执行，禁止凭残缺上下文现编题目；若发现自己本会话**没有 SKILL.md / references 上下文、或流程被精简/题目缺失** → **停下上报父代理或提醒用户**，不硬做（与 SKILL.md「生成期异常处理」红线一致）。继承上下文的主代理（DSH `subagent_fork`/`workflow`、Reasonix `-c/--resume`）按 SKILL.md 强门禁正常执行即可。
+  - **跨平台兜底：子代理上下文（v11.0 强制，接 SKILL.md「跨平台强门禁」）**：本角色若由**后台派发、不继承父上下文的子代理**执行（Reasonix `task`/`subagent`、DSH `subagent`，见 `platforms/<平台>/adaptation.md` 档位表），**入场必须先 `read` 对应场景的 `references/场景/<全新|中途|存量>-问询.md` 全文**（以及 SKILL.md 相关规则）再执行，禁止凭残缺上下文现编题目；若发现自己本会话**没有 SKILL.md / references 上下文、或流程被精简/题目缺失** → **停下上报父代理或提醒用户**，不硬做（与 SKILL.md「生成期异常处理」红线一致）。继承上下文的主代理（DSH `subagent_fork`、Reasonix `-c/--resume`）按 SKILL.md 强门禁正常执行即可。**注意（v11.4 更正）**：DSH 的 `workflow` 属**不继承**一类（其 `agent()` 默认走 `provider: spawn`，不传 seed）——**workflow 脚本里每个 `agent()` 的 prompt 都必须自带 references 必读行**，别把它当继承上下文用。
 - **工作流程**：步骤化（接收 → 处理 → 产出 → 交接）。
 - **质量自检清单**：四角色完整清单（Planner/Developer/Reviewer/Tester）见下方「四角色完整自检清单」小节，产出前逐项核对（照着打勾）。
 
