@@ -11,6 +11,7 @@
 #   3) 密文与明文同步（每个 .md 有对应 .enc 且 .enc 不旧于明文）
 #   4) 版本号一致（docs/CREATION-LOG.md 顶部 == SKILL.md 版本表尾部）
 #   5) git 跟踪中无 _private 明文（只允许 *.enc 密文）
+#   6) npm 包内容断言（v11.4 新增）：npm pack --dry-run 的文件清单不得含 _private/scripts/AGENTS.md/.github
 
 param(
     [switch]$AutoPush,
@@ -22,7 +23,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $fail = @()
 
 # 1) 工作区干净
-Write-Host "== 1/5 工作区状态 =="
+Write-Host "== 1/6 工作区状态 =="
 $dirty = git -C $root status --porcelain
 if ($dirty) {
     $fail += "工作区有未提交改动，请先 commit 再发布：`n$dirty"
@@ -31,7 +32,7 @@ if ($dirty) {
 }
 
 # 2) 明文忽略
-Write-Host "== 2/5 私密明文隔离 =="
+Write-Host "== 2/6 私密明文隔离 =="
 foreach ($f in @("_private/ISSUES.md", "_private/ROADMAP.md", "_private/DEVELOPER.md", "_private/.secret")) {
     if (Test-Path (Join-Path $root $f)) {
         if (git -C $root check-ignore $f 2>$null) {
@@ -43,7 +44,7 @@ foreach ($f in @("_private/ISSUES.md", "_private/ROADMAP.md", "_private/DEVELOPE
 }
 
 # 3) 密文同步
-Write-Host "== 3/5 密文明文同步 =="
+Write-Host "== 3/6 密文明文同步 =="
 $private = Join-Path $root "_private"
 if (Test-Path $private) {
     foreach ($md in Get-ChildItem $private -Filter "*.md" -File) {
@@ -67,7 +68,7 @@ if (Test-Path $private) {
 }
 
 # 4) 版本号一致
-Write-Host "== 4/5 版本号一致 =="
+Write-Host "== 4/6 版本号一致 =="
 $logVer = (Select-String -Path (Join-Path $root "docs/CREATION-LOG.md") -Pattern "^\| (v[0-9.]+)" | Select-Object -First 1).Matches[0].Groups[1].Value
 $skillVer = (Select-String -Path (Join-Path $root "SKILL.md") -Pattern "^\| (v[0-9.]+)" | Select-Object -Last 1).Matches[0].Groups[1].Value
 Write-Host "  CREATION-LOG 顶部: $logVer | SKILL.md 版本表尾: $skillVer"
@@ -76,12 +77,34 @@ $npmVer = (Get-Content (Join-Path $root "package.json") -Raw | ConvertFrom-Json)
 Write-Host "  package.json version: $npmVer（npm 已恢复发布；发布前先 npm view new-project-init version --registry https://registry.npmjs.org 确认 registry 实际版本）"
 
 # 5) git 跟踪无明文
-Write-Host "== 5/5 git 跟踪无明文 =="
+Write-Host "== 5/6 git 跟踪无明文 =="
 $tracked = git -C $root ls-files "_private" | Where-Object { $_ -match "\.md$" -and $_ -notmatch "\.enc$" }
 if ($tracked) {
     $fail += "git 已跟踪 _private 明文：$tracked"
 } else {
     Write-Host "  OK: _private 无明文被跟踪（仅密文 .enc）"
+}
+
+# 6) npm 包内容断言（人工核对 → 自动断言；G 节「发布前 npm pack --dry-run」的机械化）
+Write-Host "== 6/6 npm 包内容断言 =="
+$npmCmd = Get-Command npm -ErrorAction SilentlyContinue
+if (-not $npmCmd) {
+    Write-Host "  SKIP: 未找到 npm（发布前请在有 npm 的机器上重跑本检查）"
+} else {
+    $forbidden = @("_private/", "scripts/", "AGENTS.md", ".github/")
+    try {
+        $packJson = & npm pack --dry-run --json 2>$null | Out-String
+        $packData = $packJson | ConvertFrom-Json
+        $paths = @($packData[0].files | ForEach-Object { $_.path })
+        $bad = @($paths | Where-Object { $p = $_; $forbidden | Where-Object { $p -like "$_*" } })
+        if ($bad) {
+            $fail += "npm 包含禁止内容（检查 package.json 的 files 白名单）：$($bad -join ', ')"
+        } else {
+            Write-Host "  OK: npm 包共 $($paths.Count) 个文件，不含 $($forbidden -join ' / ')"
+        }
+    } catch {
+        $fail += "npm pack --dry-run 执行失败：$($_.Exception.Message)"
+    }
 }
 
 # 汇总

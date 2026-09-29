@@ -69,20 +69,21 @@ AI：开始前先问几个问题——
 **方式一：DSH 插件安装（npm / GitHub）—— 本仓库同时是一个 DSH 插件包（`dsh.bundle`），安装即注册技能**
 
 ```sh
-# npm 安装（推荐，免生成构建批准；npm 已恢复发布 v1.1.0）
+# npm 安装（推荐，免生成构建批准；npm 已恢复发布）
 dsh plugin --profile web add new-project-init
 
 # 或从 GitHub 安装（备选）
 dsh plugin --profile web add github:warm-flame-core/new-project-init
 ```
 
-> 装完重启 profile（`dsh web`），技能即出现在会话技能目录。其他 profile（desktop / headless）把 `--profile` 换成对应名字；也可以从本地文件夹安装（`dsh plugin --profile web add <仓库路径>`）。
+> **`--profile <名字>` 决定装给谁用**：插件装进的是该 profile，只有用该 profile 启动的 DSH 才会加载它（桌面版与 `dsh web` 可能是两套 profile，互不通用）。装完重启该 profile，技能即出现在会话技能目录。只想让技能在**所有 profile / 所有会话**可见，用下面的**方式二**更省事。也可以从本地文件夹安装（`dsh plugin --profile web add <仓库路径>`）。
 
 **方式二：本地文件安装（无需插件系统，所有 profile 通用）**
 
 | 方式 | 做法 | 说明 |
 |------|------|------|
-| **用户级（推荐）** | 把本仓库放进 `$DSH_HOME/skills/`（Windows 默认 `C:\Users\MSI\.dsh\skills\`；可用 **junction 指向本仓库**，保持单一来源） | 所有 profile / 所有会话可见，无需改配置 |
+| **用户级（推荐）** | 把本仓库放进 `$DSH_HOME/skills/`（Windows 默认 `%USERPROFILE%\.dsh\skills\`；可用 **junction 指向本仓库**，保持单一来源） | 所有 profile / 所有会话可见，无需改配置 |
+| **多工具共享** | junction 进 `~/.agents/skills/`（DSH 内建约定根，Claude Code / Codex / Cursor / ZCode 等同理共享） | 与上一条**二选一**，同时挂会被发现两次 |
 | **项目级** | 放进项目 `.dsh/skills/` | 随仓库分发 |
 | **配置指向** | 在 `$DSH_HOME/cordis.patch.yml` 加 `skill-filesystem.customSkillDirs` 指向本仓库 | TUI 等宿主面生效 |
 
@@ -101,6 +102,8 @@ dsh plugin --profile web add github:warm-flame-core/new-project-init
 |------|----------|
 | **Claude Code** | 把本仓库放进 Claude Code 技能目录：`~/.claude/skills/new-project-init/`（用户级）或项目 `.claude/skills/`（项目级），然后说「用 new-project-init …」 |
 | **Reasonix** | 见下文「Reasonix 适配」：`reasonix.toml` 的 `[skills] paths` 指向本仓库，或 junction 进 `~/.reasonix/skills/` |
+| **ZCode** | 见下文「ZCode 适配」：junction 进 `~/.agents/skills/`（多工具共享根，推荐）或 `~/.zcode/skills/`，或项目 `.zcode/skills/` |
+| **WorkBuddy** | 见下文「WorkBuddy 适配」：junction 进 `~/.workbuddy/skills/`（用户级）或项目 `.workbuddy/skills/`；它认 `AGENTS.md`、**不认** `CLAUDE.md` |
 | **Cursor / 其他支持 skills 的 agent** | 同理：把含 `SKILL.md` 的目录放进对应技能的加载目录即可 |
 | **任何平台的通用用法** | 直接对 agent 说「用 new-project-init 完善文档 / 初始化项目 / 补建文档体系 / 迭代」——技能正文会指导 agent 按流程执行，无需平台专属配置 |
 
@@ -273,6 +276,35 @@ New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\new-project-i
 
 ---
 
+## 🧩 WorkBuddy 适配（v11.4 新增 · **待实测**）
+
+WorkBuddy 本质上是一个 **Claude Code 风格的 CLI 应用**：技能格式同为 `SKILL.md` + `references/`，常驻指令文件认 **`AGENTS.md`**（**不认** `CLAUDE.md`）。本 skill 的规则/模板/产出物无需改动即可使用。
+
+### 安装（WorkBuddy）
+
+**方式一：用户级 junction（推荐，保持单一来源）**
+
+```powershell
+cmd /c mklink /J "%USERPROFILE%\.workbuddy\skills\new-project-init" "<本仓库路径>"
+```
+
+**方式二：项目级（团队随仓库共享）**：放进 `<项目>\.workbuddy\skills\new-project-init`。
+
+### WorkBuddy 落地映射（skill 概念 → WorkBuddy 工具）
+
+| skill 概念 | WorkBuddy 落地 |
+|---|---|
+| 多 agent 角色（Planner/Developer/Reviewer/Tester） | `Agent` 子代理（独立上下文，prompt 含 references 必读行）；`agents/<role>.md` 作模板 |
+| 问询（🔴 一次一个 / 🟡 批量） | `AskUserQuestion`（结构化选项） |
+| 大规模并行 / 多阶段 | `Workflow` 工具 |
+| 规划 / 迭代讨论 | `EnterPlanMode` / `ExitPlanMode` |
+| 命令实测（构建/测试，禁止猜） | `PowerShell` / `Bash` |
+| 常驻纪律 | 项目 `AGENTS.md`（经 asar 探测确认认 `AGENTS.md`；**自动注入时机待实测**） |
+
+> ⚠️ **本平台适配按「三判据」②属「新增平台适配」，会话级实测尚未跑完**——完整映射与 8 条待实测清单见 [`platforms/workbuddy/adaptation.md`](platforms/workbuddy/adaptation.md)，文件内逐项标注了【实测】/【推断】/【待实测】。
+
+---
+
 ## ✨ 核心特性
 
 - **三种场景三分支**：存量完善（4 轮 + 限制规则 R1-R6 + 冲突消解三阶段 + 工作流闭环核查，**核心场景**）/ 中途加入（7 轮，先探索 git/目录/规范）/ 全新项目（11 轮问询）
@@ -285,6 +317,9 @@ New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\new-project-i
 - **信息闭环图**（v10.0）：多边维护信息的唯一出处总图，人+AI 都能看懂
 - **对齐 lead 颗粒度**（v10.0/v10.1）：五件套模板内嵌 lead 样板脱敏示例段 + 必填章节核对表
 - **多技术栈支持**：Java/Web、C++ 后端、嵌入式（STM32/ESP32）三方向示例片段，按问询答案取用
+- **入口文件「常驻 vs 按需」分层**（v11.4）：生成的 `AGENTS.md`/`CLAUDE.md` 只放**无论做什么都要遵守 / 都要知道去哪找**的内容（项目事实速查 + 路线表 + 硬门禁），细则全部外移到独立规范文件——因为平台会**自动注入**入口文件，越长越贵、且有硬上限（Codex 32 KiB / Claude Code 40k 字符 / DSH 64 KiB），**目标 ≤ 8 KB**
+- **防「做了事、忘了写文档」**（v11.4）：入口文件常驻一张「**动作 → 必须更新**」表（新增工具/依赖/命令/接口/字段/目录、踩坑…→ 必须同时更新哪个文档），与「回答末尾自检·动作回看」「模块收尾·文档影响清点」三处联动；另配**遗漏型借口自查表**（专治「只是个小脚本」「以后补」这类无自觉的遗漏）
+- **踩坑两层沉淀**（v11.4）：`docs/已知坑/`＝索引（规则速查 + 全部坑索引，1–3 KB）＋ 单篇（现象/排查/根因/固定解法/**如何验证已规避**/提炼规则），把「会再犯的模式」沉淀成可查的规则；准入三判据（隐蔽 + 系统性 + 重犯代价高），**新建单篇必须同时补索引**
 
 > 完整设计思想（历史 v1-v9 + v10.0 共 14 条）见 `SKILL.md`「设计思想速览（全版本）」节。
 
@@ -319,7 +354,7 @@ New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\new-project-i
 
 ```
 new-project-init/
-├── SKILL.md                    # 主文件：总入口/场景骨架/强制规则/附录（31 模板索引，平台无关）
+├── SKILL.md                    # 主文件：总入口/场景骨架/强制规则/附录（34 模板索引，平台无关）
 ├── references/                 # 场景详细问询题库外置（v11.0 强门禁）：references/场景/*.md 三场景全文题库
 ├── AGENTS.md                   # 开发者入口（布局/开发工作流/发布/迭代说明）
 ├── README.md                   # 本文件（对外介绍，含各平台安装说明）
@@ -329,15 +364,16 @@ new-project-init/
 │   ├── dsh/adaptation.md       # DSH 能力映射全文
 │   ├── codex/adaptation.md     # Codex 能力映射全文（v11.1）
 │   ├── zcode/adaptation.md     # ZCode 能力映射全文（v11.3）
+│   ├── workbuddy/adaptation.md # WorkBuddy 能力映射全文（v11.4，待会话级实测）
 │   └── dsh/cordis.patch.yml    # DSH bundle patch（package.json 的 dsh.bundle 指向）
 ├── docs/
-│   └── CREATION-LOG.md         # 完整版本演进历史（v3 → v11.0）
+│   └── CREATION-LOG.md         # 完整版本演进历史（v3 → v11.4）
 ├── lib/index.js                # DSH 插件：skill provider（把根目录 SKILL.md 注册进技能注册表）
 ├── scripts/                    # 开发脚本（secret.ps1 私密加解密 / publish.ps1 发布前检查）
-├── templates/                  # 31 个模板，按产出模式分 3 目录（v11.0：27~31 可装配规范模块）
-│   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore / 可装配规范 等 22 个）
+├── templates/                  # 34 个模板，按产出模式分 3 目录（v11.0：27~31 可装配；v11.4：32~34 新增）
+│   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore / 可装配规范 等 24 个）
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
-│   └── 多次-含文件夹/          # 复制整个特化模板文件夹新建（specs 五件套 / agents / checklist）
+│   └── 多次-含文件夹/          # 复制整个特化模板文件夹新建（specs 五件套 / agents / checklist / 已知坑）
 ├── testing/                    # 四个验证走查（全新/中途/存量/模板）——skill 迭代者用
 ├── .zcode-plugin/plugin.json   # ZCode 插件清单（v11.3，支持插件方式安装）
 └── _private/                   # 私密文件（明文不入库；*.enc AES-GCM 密文入库，仅维护者解密）
@@ -403,7 +439,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 ## 🙏 致谢
 
 - **设计方法论启发**：[obra/superpowers](https://github.com/obra/superpowers)（英文原版）与 [jnMetaCode/superpowers-zh](https://github.com/jnMetaCode/superpowers-zh)（中文增强版）——触发条件式描述、完成前验证、集成选项交给用户等思想
-- **实战验证**：PTB-IMP 项目（Spring Boot + Vue3），31 个模板在真实模块开发中迭代沉淀
+- **实战验证**：PTB-IMP 项目（Spring Boot + Vue3），34 个模板在真实模块开发中迭代沉淀
 - **项目团队（PTB-IMP 实战贡献）**：
   - 组长 **white-bai-k** — [gitee.com/white-bai-k](https://gitee.com/white-bai-k)（lead 样板 module-004 五件套产出者）
   - 组员 **ssss_777** — [gitee.com/ssss_777](https://gitee.com/ssss_777)（white 分支模块开发：module-006~013 等）
@@ -433,6 +469,7 @@ A：可以，且是设计目标。对 agent 说「用 new-project-init 迭代」
 
 | 日期 | 变更内容 | 署名 |
 |------|----------|------|
+| 2026-09-30 | **v11.4：入口规范文件瘦身（常驻 vs 按需）+ 防遗忘机制 + DSH 0.2.0-rc.2 适配复核 + WorkBuddy 适配**——①确立「入口文件=常驻区」原则（只放无条件的门禁 + 去哪找）与**体量门禁 ≤8 KB**（各平台自动注入上限：Codex 32 KiB / Claude Code 40k 字符 / DSH 64 KiB）②新增「**动作 → 必须更新**」触发侧门禁表 + 「**规范索引**」路由表（按需加载成立的前提）③模板 01 重写 398→287 行：C 区→**模板 32 `docs/AI协作规范.md`**、B 区→**模板 33 `docs/编码规范.md`**、踩坑→**模板 34 `docs/已知坑/`**（README 索引 + 单篇 NNNN + 模板；准入三判据；新建单篇须同补索引）④防遗忘三处联动（入口表 ↔ 记忆库自检三步→**四步·动作回看** ↔ 模板 24 阶段 6「文档影响清点」）+ **遗漏型借口自查表**⑤口径裁决：防遗忘统一 **5 条**、收尾四查唯一出处=模板 24 阶段 5、`<AI协作规范文件>` 新占位符随迁全仓引用⑥**DSH 适配复核**：修正 adaptation 2b 表 workflow「继承」事实错误（实为**不继承**）、`customSkillDirs` 段落重写、`--profile` 与 junction 重复警示；`lib/index.js` frontmatter 加固（块标量 + 官方 invocation 键 + 修 CRLF 解析缺陷）⑦**新增 WorkBuddy 适配**（`platforms/workbuddy/adaptation.md`，认 `AGENTS.md`、技能根 `~/.workbuddy/skills/`；**待会话级实测**）⑧README：DSH 安装节补 profile 语义、新增 WorkBuddy 节、跨平台表补行、计数 31→34；package.json 1.2.0→**1.3.0** | warm-flame-core-DSH-Developer@main |
 | 2026-09-12 | v11.3：**五件套颗粒度机制 + 流程 gate 一批 + ZCode 适配**——新增 `references/五件套颗粒度标尺.md`（颗粒度下限表/BDD 场景类型覆盖清单/脱敏实例/30 硬验收词表）+ SKILL.md 强门禁第 4 条、样板固化机制、强制规则新增（五件套证据密度/独立审查/测试账号基于权限矩阵/最小对比验证/DDL 前实测库类型/权限白名单三处对齐）；模板 17~21/24/05/14 + references 问询 U10/U-M4 同步；新增 `platforms/zcode/adaptation.md` + `.zcode-plugin/plugin.json`，README 新增「ZCode 适配」节并补作者栏/英文摘要/目录树（含补登 Codex）；package.json 1.1.0→1.2.0（description/keywords 补 ZCode）；ISSUES 019~026/028~032 关闭 | warm-flame-core-ZCode-Developer@main |
 | 2026-08-19 | v11.2：DSH 完全适配复核 + npm 恢复发布 + 插件市场上架——README「DSH 安装」节删除线清除，恢复 npm 命令 `dsh plugin --profile web add new-project-init`（推荐，免生成构建批准；GitHub 备选）；package.json 升 1.1.0 并发布 npm；GitHub 加 `dsh-plugin` topic + push；awesome-dsh-plugin 上架 PR（条目 YAML + 重新生成 README）；DSH 复核/实测/发布记录见 `_private/上架-04` | warm-flame-core-DSH-Developer@main |
 | 2026-08-19 | v11.1：补录 Codex 平台适配到版本表（自身已在 README 有「Codex 适配」节）；本次为「上架计划准备」——用户要求恢复 npm 安装渠道并上架 awesome-dsh-plugin 插件市场，计划书完整写入 `_private/上架-00~04`（执行计划 DSH 交接 / awesome-dsh-plugin 条目 / 描述文案 / DSH 实测清单 / 测试记录模板），ISSUES 记 ISSUE-015；**npm 恢复发布 / DSH 实测 / 上架 PR 由后续 DSH 解密按计划书独立执行**，本次只落盘 + 版本记录，日期取系统当天 | Reasonix（skill 迭代） |

@@ -52,7 +52,7 @@ memory/logs/<角色>/YYYY-MM-DD.md
 字段要求：
 - 时间：`HH:mm`（或具体时刻）
 - 模块：`module-XXX`；全局事项（如记忆库维护、入场自检）填 `-`
-- 动作：动作标签 + 一句话动作。**标签表（20 个 + 语义）唯一出处见 CLAUDE.md C 区「记忆库纪律」**（PLAN/CLARIFY/CODE/FIX/BUILD/REVIEW/ADR/TEST/REGRESSION/SMOKE/BLOCKED/UNBLOCKED/HANDOFF/CONTEXT/CORRECT/ESCALATE/GIT/DB/CLEANUP/DOCS），本文件不重复定义。
+- 动作：动作标签 + 一句话动作。**标签表唯一出处 = `<AI协作规范文件>`「记忆库纪律」节**（v11.4 起由模板 32 承载，原名「CLAUDE.md C 区」；标签名**不在此重复列出**，避免双份维护），本文件不重复定义。
 - 产出文件：路径，多个用顿号分隔；无产出写 `-`
 - 状态：`✅ 成功 / ❌ 失败 / 📋 待办`
 - 备注：关键数字（如「mvn test 487/487」）、结论、待补测项
@@ -151,6 +151,7 @@ memory/logs/<角色>/YYYY-MM-DD.md
 
 | 日期时间 | 变更内容 | 署名 |
 |----------|----------|------|
+| 2026-09-30 | v11.4：动作标签表唯一出处改指 `<AI协作规范文件>`（模板 32；原写「CLAUDE.md C 区」）；标签名不再内联（防双份维护） | warm-flame-core-DSH-Developer@main |
 | 2026-09-12 | v11.3：「文件命名与位置」补「多角色 logs 补写」——同一 agent 扮多角色时每个角色各建各的当日 logs、收尾按涉及角色清单逐角色核对（ISSUE-021：module-019 只写了 developer 的 logs 漏 reviewer/tester） | warm-flame-core-ZCode-Developer@main |
 | 2026-08-15 | v10.5：变更记录方向标注统一为「新行插顶部（纯 AI）」（SKILL.md 第 9 条 v10.5）+ 存量行序规整 | Reasonix（skill 迭代） |
 | 2026-08-15 | v10.3：模板头部补「📍 变更记录方向」标注（两类分法：读最近=顶部插最新 / 读演进=底部追加，见 SKILL.md 文档维护规则第 9 条） | Reasonix（skill 迭代） |

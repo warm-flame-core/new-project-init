@@ -5,7 +5,7 @@
 
 ## 这是什么
 
-`new-project-init` 是一个「项目文档体系初始化」skill：**以存量完善为核心**（优化已有项目文档/规范、固化 AI 分角色协作工作流），同时覆盖中途加入补建体系与新项目开工前。提问驱动落实，31 个模板 + 四场景验证走查。
+`new-project-init` 是一个「项目文档体系初始化」skill：**以存量完善为核心**（优化已有项目文档/规范、固化 AI 分角色协作工作流），同时覆盖中途加入补建体系与新项目开工前。提问驱动落实，34 个模板 + 四场景验证走查。
 
 **架构理念**：skill 本体（SKILL.md + templates/ + testing/）平台无关；多平台适配按平台名分目录放在 `platforms/<平台>/`，像项目管理一样规整。
 
@@ -17,7 +17,7 @@ new-project-init/
 ├── AGENTS.md                 # 本文件（开发者入口）
 ├── README.md                 # 对外介绍（含各平台安装说明）
 ├── LICENSE / CONTRIBUTING.md / package.json / .gitignore
-├── templates/                # 31 个模板，按产出模式分 3 目录（平台无关核心资产）
+├── templates/                # 34 个模板，按产出模式分 3 目录（平台无关核心资产；27~31 可装配、32~34 v11.4 新增）
 ├── testing/                  # 四个场景验证走查（全新/中途/存量/模板）
 ├── references/               # 场景问询题库外置（跨平台强门禁必读）
 ├── platforms/                # ★ 多平台适配，按平台分目录
@@ -25,6 +25,7 @@ new-project-init/
 │   ├── dsh/adaptation.md             # DSH 能力映射全文
 │   ├── codex/adaptation.md           # Codex 能力映射全文（v11.1）
 │   ├── zcode/adaptation.md           # ZCode 能力映射全文（v11.3）
+│   ├── workbuddy/adaptation.md       # WorkBuddy 能力映射全文（v11.4，**待会话级实测**）
 │   └── dsh/cordis.patch.yml          # DSH bundle patch（npm/GitHub 安装均用）
 ├── docs/
 │   └── CREATION-LOG.md       # 完整版本演进历史
@@ -43,7 +44,7 @@ new-project-init/
 ## 开发工作流（任意一台电脑）
 
 ```powershell
-cd D:\software\Reasonix\Reasonix_Skill_Ds\new-project-init
+cd <本仓库路径>          # 换电脑/换工作区时按实际路径改；勿写死某一台机器的路径
 
 # 1) 拉取最新
 git pull origin main
@@ -67,9 +68,16 @@ git push origin main
 
 ## 发布
 
-- **npm**：已恢复发布（v11.2 起重新维护，当前版本 1.2.0；安装：`dsh plugin --profile web add new-project-init`，免生成构建批准）。发布前先 `npm whoami --registry https://registry.npmjs.org` 确认登录，再 `npm publish --registry https://registry.npmjs.org`（publish 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
+- **npm**：已恢复发布（v11.2 起重新维护，**当前版本 1.3.0**——实际以 `package.json` 为准，此处数字易漂移；安装：`dsh plugin --profile web add new-project-init`，免生成构建批准）。发布前先 `npm whoami --registry https://registry.npmjs.org` 确认登录，再 `npm publish --registry https://registry.npmjs.org`（publish 前先 `npm pack --dry-run` 确认 files 白名单不含 `_private`/`scripts`/`AGENTS.md`）。
 - **GitHub（push 即发布）**：安装方式在 README 中说明（DSH：`dsh plugin --profile web add new-project-init` / `github:warm-flame-core/new-project-init` 或 customSkillDirs 指向；Reasonix：`~/.reasonix/skills/` junction 或 `reasonix.toml` `[skills] paths`；Claude Code：技能目录）。
-- 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致）。
+- **GitHub tag + Release（v11.4 起建立，tag 跟 npm 版本号）**：发版时打附注 tag 并推，再建 Release。已回溯补齐 `v1.0.0`/`v1.0.1`/`v1.1.0`/`v1.2.0`（落点为各版 `package.json` 首次升到该版本号的提交）。
+  ```powershell
+  git tag -a v1.3.0 -m "npm 1.3.0 — <一句话>｜对应 skill v11.4"
+  git push origin v1.3.0            # 注意：git push 不会自动推 tag
+  gh release create v1.3.0 --title "v1.3.0 — <标题>" --notes-file <说明文件> --latest
+  ```
+  > **约定**：**tag 跟 npm 版本号**（不跟 skill 的 vXX 号）；Release 说明里附注「对应 skill vX.Y」。`gh` 已装（`C:\Program Files\GitHub CLI\gh.exe`，若不在 PATH 用全路径）。
+- 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致、**npm 包内容不含 `_private`/`scripts`/`AGENTS.md`**）。
 
 ## 迭代（优化本 skill）
 
@@ -82,7 +90,7 @@ git push origin main
 ## 平台适配开发（新增平台）
 
 - 平台无关内容进 `SKILL.md` / `templates/` / `testing/`（唯一出处）。
-- 平台特定映射写 `platforms/<平台>/adaptation.md`（如 `platforms/reasonix/`、`platforms/dsh/`、`platforms/zcode/`），并在 SKILL.md「平台适配」节 + README 各平台节登记。
+- 平台特定映射写 `platforms/<平台>/adaptation.md`（如 `platforms/reasonix/`、`platforms/dsh/`、`platforms/zcode/`、`platforms/codex/`、`platforms/workbuddy/`），并在 SKILL.md「平台适配」节 + README 各平台节登记。
 - 该平台的适配最好在该平台的电脑/工作区实测开发（如 Reasonix 适配在 Reasonix 环境、DSH 适配在 DSH 环境、ZCode 适配在 ZCode 环境）。
 
 > **三判据（ISSUE-014，v11.0：判断本次迭代要不要到对应平台实测）**：

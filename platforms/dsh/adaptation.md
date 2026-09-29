@@ -1,6 +1,7 @@
 # new-project-init · DSH（DeepSeek Harness）适配说明
 
 > 📍 变更记录（纯 AI 看，头插）：
+> `2026-09-30 | v11.4 DSH 适配复核（对照 DSH 0.2.0-rc.2 源码）：①修正 2b 表 workflow 行事实错误——workflow 子代理默认 provider 为 spawn，不继承父会话上下文（workflow-ptc 的 provider 默认为 spawn、host 的 startChild 不传 seed），原文误写为「继承」，并把「脚本里注明先读 references」升级为硬要求；②安装段去掉硬编码版本号（防与 package.json 漂移）；③「安装与发现」重写——customSkillDirs 补「patch 整段替换 config、非深合并」警示，把 ~/.agents/skills 定位更正为官方约定根（rank 500）而非「新推荐」，补「同一技能两个 junction 同时挂载会被发现两次」警示；④lib/index.js frontmatter 加固：支持块标量（| 与 >）与官方 invocation 键 disable-model-invocation / user-invocable，并修复 CRLF 行尾下 frontmatter 解析为空的缺陷 | warm-flame-core-DSH-Developer@main`
 > `2026-09-12 | 新增 5b「受控环境执行已知坑（v11.3，ISSUE-028/030 通用指引）」：构建/测试命令被工具策略/审批拦截「验证+写状态」混合时的通用决策路径 + 精确替换遇重复文本的「唯一上下文锚」技巧（平台相关，随 zcode/reasonix 适配一并沉淀；DSH 审批机制下同样适用） | warm-flame-core-ZCode-Developer@main`
 > `2026-08-19 | npm 恢复发布（ISSUE-015 执行）：插件安装段补注「npm 已恢复发布 v1.1.0（推荐，免生成构建批准）」，README/SKILL/AGENTS 同步恢复 npm 渠道 | warm-flame-core-DSH-Developer@main`
 > `2026-08-19 | DSH 适配复核（上架前，ISSUE-015）：命令实测行补注——官方 tool-catalog 通用注册名为 bash（@deepseek-ai/dsh-tool-bash），官方 shell 能力含 local/pwsh providers（deepseek-harness AGENTS.md），DSH Desktop 实际注入 pwsh；其余能力映射 8 项核对通过（ask_user_question / subagent·subagent_fork·workflow·goal / approval: ask / customSkillDirs / dsh plugin add / rank 100-550 / profile·$DSH_HOME 约定），lib/index.js 与 @deepseek-ai/dsh-skill 协议一致 | DSH（适配复核，warm-flame-core-DSH-Developer@main）`
@@ -42,7 +43,7 @@
 |---|---|---|---|
 | `subagent` | **不继承**（后台派发） | 裸子代理看不到 SKILL.md 全文与 references/场景/ 题库 | 其 prompt 模板（`agents/<role>.md`，模板 06）**必须含「入场先 read `references/场景/<全新\|中途\|存量>-问询.md` 全文再执行」**；否则可能凭残缺上下文现编题目 |
 | `subagent_fork` | **继承本会话上下文** | 父会话已加载 SKILL.md 全文 → 子代理能看到门禁与 references | 正常执行即可；若父会话还没读 references，靠 SKILL.md 强门禁强制去读 |
-| `workflow` | 继承 + 自带 prompt 脚本 | 脚本可显式指定读取哪些文件 | 在 workflow 脚本里显式注明「先读 references 对应文件全文」 |
+| `workflow` | **不继承**（默认 `provider: spawn`；`startChild` 只传 prompt/parent/signal/outputSchema，**不传 seed**） | 与 `subagent` 同级风险：裸子代理看不到 SKILL.md 全文与 references/场景/ 题库 | **硬要求**：workflow 脚本里**每个** `agent()` 的 prompt 都必须自带「先 read references/场景/<场景>-问询.md 全文再执行」，否则会重演「裸子代理现编题目」；确需继承时，把 workflow 行的 `provider` 配成 `fork`（默认是 `spawn`） |
 | `goal`（长周期） | 跨轮次持续 | 属常驻主代理，天然带上下文 | 正常执行 |
 
 **异常提示（v11.0）**：任何 DSH 子代理/工作流在执行中发现自己**没有 SKILL.md 或 references 上下文、流程被精简、题目缺失** → **停下上报父代理或提醒用户**，不凭残缺上下文猜着做（与 SKILL.md「生成期异常处理」/「跨平台强门禁」红线一致）。兜底指令见模板 06「协作协议」；`agents/<role>.md` 作 prompt 模板时，团队要确保其含 references 必读行。
@@ -70,10 +71,13 @@ skill 目录 = `<root>/new-project-init/`（含 SKILL.md + templates/ + testing/
 **插件安装（v10.8 起，本仓库同时是 DSH 插件包 `new-project-init`，`dsh.bundle` 自动注册技能 provider）**：
 
 ```sh
-dsh plugin --profile web add new-project-init                    # npm 包（推荐，npm 已恢复发布 v1.1.0）
+dsh plugin --profile web add new-project-init                    # npm 包（推荐；安装到 web profile）
 dsh plugin --profile web add github:warm-flame-core/new-project-init   # 或 GitHub
 dsh plugin --profile web add <仓库路径>                            # 或本地文件夹
 ```
+
+> ⚠️ **`--profile <名字>` 决定装给谁用**：插件装进的是**该 profile**，只有用该 profile 启动的 DSH 才会加载它。桌面版（如 `desktop`）与 `dsh web`（如 `web`）可能是两套 profile，互不通用——**装之前先确认你要给哪个 profile 用**；只想让技能在「所有 profile / 所有会话」可见，用下面的**本地文件安装**（`$DSH_HOME/skills`）更省事。
+> 另注：官方 npm 版 CLI 会拒绝 electron/desktop profile（`rejectElectronProfile`），要给 desktop profile 装请用桌面版自带 carrier 或 GUI 的插件页。
 
 插件安装走 host 层 provider（rank 550），装完重启 profile 即可在技能目录出现，无需任何配置；与下方本地文件安装可并存（同名时 rank 更低者胜，本地 400/500 优先于插件 550）。
 
@@ -84,7 +88,7 @@ dsh plugin --profile web add <仓库路径>                            # 或本�
 | 100 | `<项目根>/.dsh/skills` | 项目级（随仓库走） |
 | 200 | `<项目根>/.agents/skills` | 项目级 |
 | 300 | `customSkillDirs`（配置） | 见下 |
-| 400 | `$DSH_HOME/skills`（默认 `C:\Users\MSI\.dsh\skills`） | **用户级，所有 profile/会话可见（推荐）** |
+| 400 | `$DSH_HOME/skills`（默认 `%USERPROFILE%\.dsh\skills`） | **用户级，所有 profile/会话可见（推荐）** |
 | 500 | `$DSH_AGENTS_HOME/skills` | 兼容级 |
 
 **Web/桌面界面的注意**：GUI 的 skill 由 **agent preset** 层的 `skill-filesystem` 行提供（宿主行被 `dsh-web-app` 禁用），`standard` 等 preset 默认 `includeDefaultRoots: true` → 上表 100/200/300/400/500 全部生效。因此：
@@ -97,12 +101,16 @@ dsh plugin --profile web add <仓库路径>                            # 或本�
 - id: skill-filesystem
   config:
     customSkillDirs:
-      - 'F:/Software/deepseek-harness/Skill'
+      - '<你的技能根绝对路径>'   # 例：存放 new-project-init/ 的父目录
 ```
 
-> 注：该宿主层行在 Web/桌面 profile 被禁用（preset 层接管），因此 customSkillDirs 主要对 TUI/headless 等 profile 生效；GUI 请用 `$DSH_HOME/skills` 方案。两者可并存，互不冲突。
+> ⚠️ **patch 是「整段替换 config」而不是深合并**——写这一行会覆盖别处对同一行的 config，所以要把该行需要的 config **一次写全**，别只写一个字段。
+> 注：该宿主层行在 Web/桌面 profile 被禁用（preset 层接管），因此 customSkillDirs 主要对 TUI/headless 等 profile 生效；**GUI 请用 `$DSH_HOME/skills` 方案**。两者可并存，互不冲突。
 
-- **验证**：`dsh --profile <name> --dump-config` 应看到 `skill-filesystem` 行的 `customSkillDirs`；技能目录在会话首个步骤渲染（新会话必见；运行中的会话由 watcher 轮询补发现，缺失根每 100ms 探测一段路径）。
+- **关于 `$DSH_AGENTS_HOME/skills`（默认 `~/.agents/skills`）**：它是**官方约定根**（rank 500，`@deepseek-ai/dsh-skill-filesystem` 内建），**不是"替代 customSkillDirs 的新推荐方式"**。需要与 Claude Code / Codex / Cursor / ZCode 等**多工具共享同一份技能**时用它。
+- ⚠️ **不要重复挂载**：`$DSH_HOME/skills`（rank 400）与 `~/.agents/skills`（rank 500）指向同一仓库时，同一个技能会被发现两次（400 胜出、内容相同，无实际危害，但属冗余配置）。二选一即可；需要多工具共享时选 `~/.agents/skills`。
+
+- **验证**：`dsh --profile <name> --dump-config` 应看到 `skill-filesystem` 行及其 config；技能目录在会话首个步骤渲染（新会话必见；运行中的会话由 watcher 轮询补发现，缺失根每 100ms 探测一段路径）。
 
 ## 5b. 受控环境执行已知坑（v11.3，ISSUE-028/030 通用指引）
 
