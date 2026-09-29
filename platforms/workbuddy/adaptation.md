@@ -16,7 +16,7 @@
   - 项目级【推断（间接旁证）】：`<repo>/.workbuddy/skills/`——本机 `~/.workbuddy/skills/blog-writer` 是指向 `F:\Code\blog\.workbuddy\skills\blog-writer` 的 Junction。**注意**：这只是「有人这样挂且目标可解析」，**并未验证平台是否真的读取项目级根**（可能是人工创建的）。属间接旁证，列入第 6 节待实测。
 - **调用**【推断】：`Skill` 工具（product.json 工具表含 `Skill`；`SkillManage` 能力位为关）→ 用户说「用 new-project-init …」由模型调用。
 - **常驻纪律文件**【实测 + 推断】：`app.asar` 内含 `AGENTS.md` 字符串，**不含** `CLAUDE.md` / `GEMINI.md` / `WORKBUDDY.md` → 本平台认 **`AGENTS.md`**（与 Reasonix / ZCode / DSH 同源约定）。**自动注入时机、是否读嵌套 `AGENTS.md` 属【待实测】**。
-- **字数上限**【待实测】：未找到公开数值与源码证据 → **统一按 SKILL.md「入口规范文件」的预算执行（≤8 KB）**，留足余量。
+- **字数上限**【待实测】：未找到公开数值与源码证据 → **统一按 SKILL.md「入口规范文件」的预算执行（硬门禁 ≤10 KB、超 8 KB 预警）**，留足余量。
 
 ## 2. 能力映射表（skill 概念 → WorkBuddy 工具）
 

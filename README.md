@@ -4,7 +4,7 @@
 
 **用大白话说**：你项目里有一堆文档要**建、要整理、要立规矩**，还要让 AI 以后**按规矩帮你干活**——用这个 skill，AI 会先问清楚你的项目情况（技术栈、团队、习惯……问到你烦为止，答不上来它会给默认），再按你的答案生成一套规范文件（CLAUDE.md、AI 记忆库、docs 文档、模块流程等），以后**每个 AI 进场都知道先读什么、怎么干活、怎么留记录**。**重点场景是「存量完善」：项目跑了一半、文档已经有点乱的**——不乱动你的代码，只把文档和流程理顺（只记录不重构）。
 
-A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **v11.4：entry-file "always-on vs on-demand" split（generated AGENTS.md/CLAUDE.md ≤ 8 KB，细则按需加载）+ anti-forgetting mechanism（「action → must-update」gate）+ pitfalls as a two-layer folder + WorkBuddy support**; **adapted for DeepSeek Harness (DSH), Reasonix, ZCode and WorkBuddy**, also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
+A question-driven skill focused on **optimizing existing project docs & AI-collaboration workflows** (存量完善) — and scaffolding new projects, or joining one mid-way. **v11.4：entry-file "always-on vs on-demand" split（generated AGENTS.md/CLAUDE.md ≤ 10 KB，细则按需加载）+ anti-forgetting mechanism（「action → must-update」gate）+ pitfalls as a two-layer folder + WorkBuddy support**; **adapted for DeepSeek Harness (DSH), Reasonix, ZCode and WorkBuddy**, also works with Claude Code and other skill-capable agents. Design methodology inspired by [superpowers](https://github.com/obra/superpowers) & [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh).
 
 [![作者 warm-flame-core](https://img.shields.io/badge/👤_作者-warm--flame--core-blue)](https://github.com/warm-flame-core)
 [![DSH 适配](https://img.shields.io/badge/DeepSeek_Harness-深度适配-4F46E5)](https://github.com/deepseek-ai/deepseek-harness)
@@ -317,7 +317,7 @@ cmd /c mklink /J "%USERPROFILE%\.workbuddy\skills\new-project-init" "<本仓库�
 - **信息闭环图**（v10.0）：多边维护信息的唯一出处总图，人+AI 都能看懂
 - **对齐 lead 颗粒度**（v10.0/v10.1）：五件套模板内嵌 lead 样板脱敏示例段 + 必填章节核对表
 - **多技术栈支持**：Java/Web、C++ 后端、嵌入式（STM32/ESP32）三方向示例片段，按问询答案取用
-- **入口文件「常驻 vs 按需」分层**（v11.4）：生成的 `AGENTS.md`/`CLAUDE.md` 只放**无论做什么都要遵守 / 都要知道去哪找**的内容（项目事实速查 + 路线表 + 硬门禁），细则全部外移到独立规范文件——因为平台会**自动注入**入口文件，越长越贵、且有硬上限（Codex 32 KiB / Claude Code 40k 字符 / DSH 64 KiB），**目标 ≤ 8 KB**
+- **入口文件「常驻 vs 按需」分层**（v11.4）：生成的 `AGENTS.md`/`CLAUDE.md` 只放**无论做什么都要遵守 / 都要知道去哪找**的内容（项目事实速查 + 路线表 + 硬门禁），细则全部外移到独立规范文件——因为平台会**自动注入**入口文件，越长越贵、且有硬上限（Codex 32 KiB / Claude Code 40k 字符 / DSH 64 KiB），**硬门禁 ≤ 10 KB、超 8 KB 预警**
 - **防「做了事、忘了写文档」**（v11.4）：入口文件常驻一张「**动作 → 必须更新**」表（新增工具/依赖/命令/接口/字段/目录、踩坑…→ 必须同时更新哪个文档），与「回答末尾自检·动作回看」「模块收尾·文档影响清点」三处联动；另配**遗漏型借口自查表**（专治「只是个小脚本」「以后补」这类无自觉的遗漏）
 - **踩坑两层沉淀**（v11.4）：`docs/已知坑/`＝索引（规则速查 + 全部坑索引，1–3 KB）＋ 单篇（现象/排查/根因/固定解法/**如何验证已规避**/提炼规则），把「会再犯的模式」沉淀成可查的规则；准入三判据（隐蔽 + 系统性 + 重犯代价高），**新建单篇必须同时补索引**
 
