@@ -17,8 +17,13 @@ tmp/
 node_modules/
 npm-debug.log*
 
-# 私密文件明文（不入库；*.enc 密文入库）
-# v11.3（ISSUE-032）：改用「全忽略 + 密文豁免」——原 `_private/*.md` 等只匹配直接子文件，
-# 挡不住子目录（如 _private/module-018-五件套样板/*.md 解压明文），有明文入库风险
-_private/*
-!_private/*.enc
+# 私密文件：整目录忽略（明文 + 密文都不在 main）
+# v11.4：密文改由独立的 vault 分支承接，main 侧不再豁免 *.enc。
+#   - 明文（ISSUES/ROADMAP/DEVELOPER、.secret，以及子目录里的解压产物）永不入库
+#   - 取用密文：git worktree add <仓库外路径> vault
+#              或 git fetch origin vault && git checkout vault -- _private
+#   - 加密后直接落到 vault 工作区：
+#      pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -OutDir <vault路径>\_private
+# 历史：v11.3（ISSUE-032）曾用 `_private/*` + `!_private/*.enc`（全忽略 + 密文豁免）；
+#       更早只写 `_private/*.md`，挡不住子目录明文。v11.4 迁 vault 后统一为整目录忽略。
+_private/

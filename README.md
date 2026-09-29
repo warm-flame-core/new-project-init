@@ -369,15 +369,17 @@ new-project-init/
 ├── docs/
 │   └── CREATION-LOG.md         # 完整版本演进历史（v3 → v11.4）
 ├── lib/index.js                # DSH 插件：skill provider（把根目录 SKILL.md 注册进技能注册表）
-├── scripts/                    # 开发脚本（secret.ps1 私密加解密 / publish.ps1 发布前检查）
+├── scripts/                    # 开发脚本（secret.ps1 私密加解密 / publish.ps1 发布前检查 7 项）
 ├── templates/                  # 34 个模板，按产出模式分 3 目录（v11.0：27~31 可装配；v11.4：32~34 新增）
 │   ├── 一次性/                 # 特化即正式文件（CLAUDE.md / docs / 记忆库三件套 / gitignore / 可装配规范 等 24 个）
 │   ├── 多次-单文件/            # 复制单模板文件新建（logs 每日 / handoff 交接）
 │   └── 多次-含文件夹/          # 复制整个特化模板文件夹新建（specs 五件套 / agents / checklist / 已知坑）
 ├── testing/                    # 四个验证走查（全新/中途/存量/模板）——skill 迭代者用
 ├── .zcode-plugin/plugin.json   # ZCode 插件清单（v11.3，支持插件方式安装）
-└── _private/                   # 私密文件（明文不入库；*.enc AES-GCM 密文入库，仅维护者解密）
+└── _private/                   # 私密文件**明文**（整目录被 .gitignore 排除，不入库）
 ```
+
+> 🔒 **私密文件不在这棵树里**：`_private/` 的**密文**（`*.enc`，AES-256-GCM）放在**独立的 `vault` 分支**上（v11.4 起）——默认 `git clone` / 网页浏览 / 代码搜索都不会出现它们。维护者取用：`git worktree add <路径> vault`。**注意**：`vault` 分支仍在公开仓库内、旧密文也仍在 `main` 的历史对象里，**这不是保密**，安全边界只有口令。
 
 ## 三种产出模式（skill 用完后）
 

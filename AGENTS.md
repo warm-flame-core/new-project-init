@@ -33,12 +33,15 @@ new-project-init/
 │   └── index.js              # DSH 插件入口（skill provider）
 ├── scripts/
 │   ├── secret.ps1            # 私密文件 AES 加解密（零依赖）
-│   └── publish.ps1           # 发布前检查（GitHub 直接 push 即发布）
-└── _private/                 # 私密文件（明文不入库，*.enc 密文入库）
+│   └── publish.ps1           # 发布前检查（7 项；含明文↔vault 密文同步 + vault 分支无明文）
+└── _private/                 # 私密文件**明文**（整目录被 .gitignore 排除，永不入库）
     ├── ISSUES.md             # 迭代输入源（项目使用中发现的问题）
     ├── ROADMAP.md            # 仓库打磨路线
     ├── DEVELOPER.md          # 双机工作流手册（含口令同步说明）
-    └── *.enc                 # 以上文件的加密产物（提交入库）
+    ├── .secret               # 口令（不入库）
+    └── （此处**没有** .enc——密文全在 vault 分支）
+
+<并列目录>\<仓库名>-vault\        # ★ vault 分支工作区（`git worktree add` 建；只放 _private/*.enc）
 ```
 
 ## 开发工作流（任意一台电脑）
@@ -50,21 +53,27 @@ cd <本仓库路径>          # 换电脑/换工作区时按实际路径改；�
 git pull origin main
 
 # 2) 解密私密文件（口令：-Passphrase / 环境变量 NPI_SECRET / _private/.secret）
-pwsh -File scripts/secret.ps1 -Action decrypt -Path _private
+#    新电脑先挂 vault 工作区（密文在 vault 分支，不在 main）：
+git worktree add "<并列目录>\new-project-init-vault" vault
+pwsh -File scripts/secret.ps1 -Action decrypt -Path "..\new-project-init-vault\_private"
 
 # 3) 改文件（SKILL.md / templates / platforms / docs 等）
 #    —— 遵循 SKILL.md「skill 迭代大前提」：至少升小版本 + docs/CREATION-LOG.md 顶部追加记录
 
-# 4) 重新加密私密文件
-pwsh -File scripts/secret.ps1 -Action encrypt -Path _private
+# 4) 重新加密私密文件（**直接落到 vault 工作区**，避免主工作区留一份会漂移的副本）
+pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -OutDir "..\new-project-init-vault\_private"
+git -C "..\new-project-init-vault" add -A
+git -C "..\new-project-init-vault" commit -m "vault: <改了什么>"
 
-# 5) 提交 + 推送（GitHub 即发布）
+# 5) 提交 + 推送（发布 = 推两个分支）
 git add -A
 git commit -m "..."
 git push origin main
+git -C "..\new-project-init-vault" push origin vault
 ```
 
-> ⚠️ **私密纪律（硬规则）**：`_private/*.md` 明文与 `_private/.secret` 口令被 `.gitignore` 排除、绝不入库；只有 `*.enc` 密文入库。发布前跑 `scripts/publish.ps1` 做泄露检查。**口令只在两台电脑间同步，不要写进任何入库文件。**
+> ⚠️ **私密纪律（硬规则，v11.4 迁 vault）**：`_private/` **整目录**（明文 + `.secret` + 子目录产物 + 密文）都被 `.gitignore` 排除，`main` 上**一个都不跟踪**；密文只存在于 **`vault` 分支**（孤儿分支，只放 `_private/*.enc` + 防明文误提交的 `.gitignore`）。
+> **但要知道这不是保密**：`vault` 分支仍在**公开仓库**里，任何人 `git fetch origin vault` 都能拿到密文；**旧密文也仍留在 `main` 的历史对象里**（本次迁移不改写历史）。安全边界只有那把口令。**口令只在两台电脑间同步，不要写进任何入库文件。**
 
 ## 发布
 
@@ -77,7 +86,7 @@ git push origin main
   gh release create v1.3.0 --title "v1.3.0 — <标题>" --notes-file <说明文件> --latest
   ```
   > **约定**：**tag 跟 npm 版本号**（不跟 skill 的 vXX 号）；Release 说明里附注「对应 skill vX.Y」。`gh` 已装（`C:\Program Files\GitHub CLI\gh.exe`，若不在 PATH 用全路径）。
-- 发布前检查：`pwsh -File scripts/publish.ps1`（校验 `_private` 无明文泄露、密文与明文同步、版本号一致、**npm 包内容不含 `_private`/`scripts`/`AGENTS.md`**）。
+- 发布前检查：`pwsh -File scripts/publish.ps1`（**7 项**：主工作区干净 / `_private` 明文被忽略 / 明文↔vault 密文同步 / 版本号一致 / 主工作区零跟踪 `_private` / vault 分支无明文 / npm 包内容不含 `_private`·`scripts`·`AGENTS.md`）。通过后**推两个分支**才算发布：`git push origin main` + `git -C "<vault>" push origin vault`。
 
 ## 迭代（优化本 skill）
 

@@ -11,9 +11,12 @@
 #   pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -Passphrase "你的口令"
 #   pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -Force   # 强制全量重加密（换口令/疑损坏时）
 #
+# 密文落到 vault 工作区（v11.4 起，推荐；避免主工作区留一份会漂移的副本）：
+#   pwsh -File scripts/secret.ps1 -Action encrypt -Path _private -OutDir "F:\skill\new-project-init-vault\_private"
+#
 # 增量加密（v11.4）：`encrypt` 默认**跳过 .enc 不早于明文的文件**——salt/nonce 随机导致同样明文每次
 #   密文都不同，全量重写会让每次提交都显示所有 .enc 变更（历史教训见 CREATION-LOG 1d7a8fd）。
-#   需要全量重写时加 -Force。
+#   需要全量重写时加 -Force。`-OutDir` 会保留子目录结构（同名不撞车），并自动建目录。
 #
 # 口令来源（优先级从高到低）：
 #   1) -Passphrase 参数
@@ -29,7 +32,8 @@ param(
     [Parameter(Mandatory = $true)][string]$Path,
     [string]$Passphrase = "",
     [switch]$Recurse,
-    [switch]$Force
+    [switch]$Force,
+    [string]$OutDir = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -52,6 +56,17 @@ function Get-Key([byte[]]$salt, [string]$pass) {
     return $pbkdf2.GetBytes(32)
 }
 
+# ---------- 计算密文输出路径（v11.4：支持 -OutDir 落到 vault 工作区） ----------
+function Get-EncPath([string]$file) {
+    if (-not $OutDir) { return "$file.enc" }
+    if (Test-Path $Path -PathType Container) {
+        $root = (Resolve-Path $Path).Path.TrimEnd('\', '/')
+        $rel = $file.Substring($root.Length).TrimStart('\', '/')   # 保留子目录结构，避免同名撞车
+        return (Join-Path $OutDir ($rel + ".enc"))
+    }
+    return (Join-Path $OutDir ((Split-Path $file -Leaf) + ".enc"))
+}
+
 # ---------- 加密单个文件 ----------
 function Encrypt-File([string]$file, [string]$pass) {
     $plain = [System.IO.File]::ReadAllBytes($file)
@@ -64,7 +79,9 @@ function Encrypt-File([string]$file, [string]$pass) {
     try { $aes.Encrypt($nonce, $plain, $cipher, $tag) } finally { $aes.Dispose() }
     $magic = [System.Text.Encoding]::ASCII.GetBytes("NPI1")
     $payload = $magic + $salt + $nonce + $tag + $cipher
-    $out = "$file.enc"
+    $out = Get-EncPath $file
+    $dir = Split-Path $out -Parent
+    if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
     [System.IO.File]::WriteAllText($out, [Convert]::ToBase64String($payload))
     Write-Host "  encrypt: $file -> $out ($($plain.Length) B -> $([Convert]::ToBase64String($payload).Length) chars)"
 }
@@ -114,7 +131,7 @@ if ($Action -eq "encrypt") {
     # 用 -Force 强制全量重加密（换口令、怀疑密文损坏时用）
     $skipped = 0
     foreach ($f in $targets) {
-        $enc = "$f.enc"
+        $enc = Get-EncPath $f
         if (-not $Force -and (Test-Path $enc) -and ((Get-Item $enc).LastWriteTime -ge (Get-Item $f).LastWriteTime)) {
             Write-Host "  skip   : $f （密文已是最新；-Force 可强制重加密）"
             $skipped++
